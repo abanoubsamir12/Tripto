@@ -66,6 +66,7 @@ class Place(Base):
 
 class PlaceToType(Base):
     __tablename__ = "placesToTypes"
+    id = Column(Integer , primary_key = True , index = True)
     place_id = Column(Integer , ForeignKey("places.id"))
     placeType_id = Column(Integer , ForeignKey("placeTypes.id"))
 
