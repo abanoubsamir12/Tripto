@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Float
 from sqlalchemy.orm import relationship
 from .database import Base
 
@@ -10,10 +10,11 @@ class User(Base):
     hashed_password = Column(String)
     is_active = Column(Boolean, default=True)
     age = Column(Integer)
+    country = Column(String)
     username= Column(String, unique = True , index = True)
-    role_id = Column(int , ForeignKey("roles.id"))
-    role = relationship("Role" , back_populates= "is")
-
+    role_id = Column(Integer , ForeignKey("roles.id"))
+    geolat = Column(Float)
+    geolng = Column(Float)
 
 class Role(Base):
     __tablename__ = "roles"
@@ -22,26 +23,17 @@ class Role(Base):
     name= Column(String , unique= True )
 
 
-class Interest(Base):
-    __tablename__ = "interests"
-
-    id =Column(Integer, primary_key=True, index=True)
-    name = Column(String, unique= True)
-
-
-class Interest_to_Role(Base):
-    __tablename__ = "fields_to_roles"
+class Interest_to_User(Base):
+    __tablename__ = "interestsToUsers"
 
     id = Column(Integer, primary_key=True, index=True)
-    role_id = Column(Integer , ForeignKey("roles.id"))
-    interest_id = Column(Integer , ForeignKey("interests.id"))
-
-
+    user_id = Column(Integer , ForeignKey("users.id"))
+    interest_id = Column(Integer , ForeignKey("placeTypes.id"))
 
 class Search_History(Base):
     __tablename__ = "searchhistory"
 
-    id = Column(Integer, primary_key=true, index=true)
+    id = Column(Integer, primary_key=True, index=True)
     place_id = (Integer , ForeignKey("places.id"))
     user_id = (Integer, ForeignKey("user.id"))
 
@@ -49,30 +41,34 @@ class Search_History(Base):
 class rating(Base):
     __tablename__ = "ratings"
 
-    id = Column(Integer, primary_key=true, index=true)
+    id = Column(Integer, primary_key=True, index=True)
     place_id = (Integer, ForeignKey("places.id"))
-    user_id = (Integer, ForeignKey("user.id"))
+    user_id = (Integer, ForeignKey("users.id"))
     rate = Column(Integer)
 
 
-class Location(Base):
-    __tablename__ = "locations"
-    id = Column(Integer, primary_key=true, index=true)
-    geolat = Column(float)
-    geolng = Column(float)
+class PlaceType(Base):
+    __tablename__ = "placeTypes"
+
+    id =Column(Integer, primary_key=True, index=True)
+    name = Column(String, unique= True)
+    image = Column(String)
 
 
 class Place(Base):
     __tablename__ = "places"
 
-    id = Column(Integer , primary_key = true , index = true)
+    id = Column(Integer , primary_key = True , index = True)
     image= Column(String)
     description = Column(String)
-    location_id = Column(Integer , ForeignKey("locations.id"))
+    geolat = Column(Float)
+    geolng = Column(Float)
+    placeType_id = Column(Integer , ForeignKey("placeTypes.id"))
 
+class Activity(Base):
+    __tablename__="activities"
 
-class
-
-
-
-
+    id = Column(Integer, primary_key=True, index=True)
+    image = Column(String)
+    description = Column(String)
+    place_id = Column(Integer , ForeignKey("places.id"))
