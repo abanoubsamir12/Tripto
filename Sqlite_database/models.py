@@ -23,14 +23,14 @@ class Role(Base):
     name= Column(String , unique= True )
 
 
-class Interest_to_User(Base):
+class InterestToUser(Base):
     __tablename__ = "interestsToUsers"
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer , ForeignKey("users.id"))
     interest_id = Column(Integer , ForeignKey("placeTypes.id"))
 
-class Search_History(Base):
+class SearchHistory(Base):
     __tablename__ = "searchhistory"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -38,7 +38,7 @@ class Search_History(Base):
     user_id = (Integer, ForeignKey("user.id"))
 
 
-class rating(Base):
+class Rating(Base):
     __tablename__ = "ratings"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -63,6 +63,10 @@ class Place(Base):
     description = Column(String)
     geolat = Column(Float)
     geolng = Column(Float)
+
+class PlaceToType(Base):
+    __tablename__ = "placesToTypes"
+    place_id = Column(Integer , ForeignKey("places.id"))
     placeType_id = Column(Integer , ForeignKey("placeTypes.id"))
 
 class Activity(Base):
