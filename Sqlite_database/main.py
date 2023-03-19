@@ -12,9 +12,10 @@ from passlib.context import CryptContext
 from jose import jwt , JWTError
 models.Base.metadata.create_all(bind=engine)
 
-
-
 app = FastAPI()
+
+SECRET_KEY = "thequickbrownfoxjumpsoverthelazydog"
+ALGORITHM = "HS256"
 
 pwd_context = CryptContext(schemes = ["bcrypt"] , deprecated ="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl = "token")
@@ -32,38 +33,42 @@ def get_db():
     finally:
         db.close()
 
+@app.post('/addUser')
+def CreateUser( user: schemas.UserCreate ,db: Session= Depends(get_db)):
+    user_db = crud.getUserByUsername(db ,user.username)
+    if user_db:
+        raise HTTPException(
+            status_code = 400,
+            detail = "account already exists"
+        )
+    return  crud.CreateUser(db , user)
+
+
 
 def verify_password(password , hashed_password):
     return  pwd_context.verify(password , hashed_password)
 
-def get_hash_passowrd(password):
-    return  pwd_context.hash(password)
-
-def authenticate_user(email: str , password: str , db:Session =Depends(get_db())):
-    user = crud.getUserByEmail(db= db , user_email= email)
+def authenticate_user(username: str , password: str , db:Session =Depends(get_db())):
+    user = crud.getUserByUsername(db= db , username= username)
     if not user:
         return false
     if not verify_password(password , user.hashed_password):
         return  false
     return user
 
-SECRET_KEY = "thequickbrownfoxjumpsoverthelazydog"
-ALGORITHM = "HS256"
-
 def create_access_token(data: dict , expires_delta: timedelta | None = None):
     to_encode = data.copy()
     if(expires_delta):
         expire = datetime.utcnow() +expires_delta
     else:
-        expire = datetime.utcnow() + expires_delta(minutes = 15)
+        expire = datetime.utcnow() + timedelta(minutes = 15)
     to_encode.update({"exp" : expire})
     encoded_jwt = jwt.encode(to_encode , SECRET_KEY , algorithm = ALGORITHM)
     return  encoded_jwt
 
 @app.post('/login/token' , response_model = Token)
-async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends() ):
-    db: Session = Depends(get_db())
-    user = authenticate_user(form_data.username , form_data.password , db = db)
+async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db) ):
+    user = authenticate_user(username=form_data.username , password=form_data.password , db = db)
     if(not user):
         raise HTTPException(
             status_code = status.HTTP_401_UNAUTHORIZED,
@@ -72,12 +77,38 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
         )
     access_token_expires = timedelta(minutes = 30)
     access_token = create_access_token(
-        data ={"sub" : user.email} , expires_delta = access_token_expires
+        data ={"sub" : user.username} , expires_delta = access_token_expires
     )
-    return  {"access_token" : access_token}
-
+    return  {"access_token" : access_token , "token_type" : "bearer"}
 
 
 @app.get('/token')
 def read_token(token: str = Depends(oauth2_scheme)):
     return {'token' : token}
+
+
+def get_current_user(token: str = Depends(oauth2_scheme) , db: Session = Depends(get_db)):
+    credintials_exception = HTTPException (
+        status_code = status.HTTP_401_UNAUTHORIZED,
+        detail = "unauthorized user",
+        headers = {"WWW-Authenticate": "Bearer"}
+    )
+    try:
+        payload = jwt.decode(token , SECRET_KEY , alogorithms = [ALGORITHM])
+        username = payload.get("sub")
+        if username is None:
+            raise  credintials_exception
+        current_user = crud.getUserByUsername(db=db, username=username)
+    except JWTError:
+        raise  credintials_exception
+
+    if current_user is None:
+        raise credintials_exception
+    return current_user
+def get_current_active_user(current_user: models.User = Depends(get_current_user)):
+    return  current_user
+
+@app.get('/users/me', response_model = schemas.User)
+def get_me(current_user: models.User = Depends(get_current_active_user)):
+    return  current_user
+
