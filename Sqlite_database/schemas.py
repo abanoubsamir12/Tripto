@@ -12,18 +12,19 @@ class UserBase(BaseModel):
     age: int
     country: str
     username: str
-
+    role_id: int
 
 class UserCreate(UserBase):
     password: str
 
 
+
+
 class User(UserBase):
     id: int
     is_active: bool
-    role_id: int
-    geolat: float
-    geolng: float
+    geolat: float | None = None
+    geolng: float | None = None
 
     class Config:
         orm_mode = True

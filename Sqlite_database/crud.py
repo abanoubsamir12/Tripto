@@ -21,7 +21,8 @@ def CreateUser(db: Session , user: schemas.UserCreate):
                           age = user.age,
                           hashed_password = hashed_password,
                           country = user.country,
-                          username = user.username
+                          username = user.username,
+                          role_id= user.role_id
     )
     db.add(db_user)
     db.commit()
