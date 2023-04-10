@@ -57,8 +57,9 @@ class PlaceType(Base):
 
 class Place(Base):
     __tablename__ = "places"
-
     id = Column(Integer , primary_key = True , index = True)
+    name = Column(String)
+    city = Column(String)
     image= Column(String)
     description = Column(String)
     geolat = Column(Float)
@@ -78,3 +79,9 @@ class Activity(Base):
     image = Column(String)
     description = Column(String)
     place_id = Column(Integer , ForeignKey("places.id"))
+
+class PlaceToActivity(Base):
+    __tablename__ = "placesToActivities"
+    id = Column(Integer, primary_key=True, index=True)
+    place_id = Column(Integer, ForeignKey("places.id"))
+    activity_id = Column(Integer, ForeignKey("activities.id"))
