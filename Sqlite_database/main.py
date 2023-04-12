@@ -1,7 +1,7 @@
 import datetime
 
 from pydantic import BaseModel
-from fastapi import FastAPI , Body , Cookie , Header , Depends
+from fastapi import FastAPI , Body , Cookie , Header , Depends,status
 from datetime import  timedelta , datetime , date
 from sqlalchemy.orm import Session
 from http_exceptions import HTTPException
@@ -39,6 +39,7 @@ async def CreateUser( user: schemas.UserCreate ,db: Session= Depends(get_db)):
     if user_db:
         raise HTTPException(
             status_code = 400,
+            #message = "account already exists"
             detail = "account already exists"
         )
     return  crud.CreateUser(db , user)
@@ -51,9 +52,9 @@ def verify_password(password , hashed_password):
 def authenticate_user(username: str , password: str , db:Session =Depends(get_db())):
     user = crud.getUserByUsername(db= db , username= username)
     if not user:
-        return false
+        return False
     if not verify_password(password , user.hashed_password):
-        return  false
+        return  False
     return user
 
 def create_access_token(data: dict , expires_delta: timedelta | None = None):
