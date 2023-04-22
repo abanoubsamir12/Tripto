@@ -58,7 +58,7 @@ class PlaceType(Base):
 class Place(Base):
     __tablename__ = "places"
     id = Column(Integer , primary_key = True , index = True)
-    name = Column(String)
+    name = Column(String , unique = True)
     city = Column(String)
     image= Column(String)
     description = Column(String)

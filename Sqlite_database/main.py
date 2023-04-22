@@ -1,10 +1,10 @@
 import datetime
 
 from pydantic import BaseModel
-from fastapi import FastAPI , Body , Cookie , Header , Depends,status
+from fastapi import FastAPI , Body , Cookie , Header , Depends,status, HTTPException
 from datetime import  timedelta , datetime , date
 from sqlalchemy.orm import Session
-from http_exceptions import HTTPException
+#from http_exceptions import HTTPException
 from . import models , schemas , crud
 from .database import SessionLocal, engine
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
@@ -18,7 +18,8 @@ SECRET_KEY = "thequickbrownfoxjumpsoverthelazydog"
 ALGORITHM = "HS256"
 
 pwd_context = CryptContext(schemes = ["bcrypt"] , deprecated ="auto")
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl = "token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/token",
+    scheme_name="JWT")
 class Token(BaseModel):
     access_token:str
     token_type:str
@@ -82,6 +83,8 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     )
     return  {"access_token" : access_token , "token_type" : "bearer"}
 
+
+@app.get('/users/me', response_model = schemas.User)
 async def get_current_user(token: str = Depends(oauth2_scheme) , db: Session = Depends(get_db)):
 
     try:
@@ -97,14 +100,14 @@ async def get_current_user(token: str = Depends(oauth2_scheme) , db: Session = D
     except JWTError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="unauthorized user",
+            detail="not valid token",
             headers={"WWW-Authenticate": "Bearer"}
         )
 
     if current_user is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="unauthorized user",
+            detail="Not User in the System",
             headers={"WWW-Authenticate": "Bearer"}
         )
     return current_user
@@ -113,7 +116,7 @@ async def get_current_active_user(current_user: models.User = Depends(get_curren
         raise HTTPException(status_code=400, detail="Inactive User")
     return  current_user
 
-@app.get('/users/me', response_model = schemas.User)
-async def get_me(current_user: models.User = Depends(get_current_active_user)):
-    return  current_user
+#@app.get('/users/me', response_model = schemas.User)
+#async def get_me(current_user: models.User = Depends(get_current_user)):
+#    return  current_user
 
