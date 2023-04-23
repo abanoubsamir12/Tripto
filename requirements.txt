@@ -1,9 +1,5 @@
-uvicorn
-sqlmodel
-typer
-dynaconf
-jinja2
+fastapi
+uvicorn[standard]
 python-jose[cryptography]
 passlib[bcrypt]
-python-multipart
-psycopg2-binary
+SQLAlchemy
