@@ -1,0 +1,11 @@
+{
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "driver": "SQLite",
+            "name": "tripto",
+            "database": "${workspaceFolder:Tripto}/tripto.db"
+        }
+    ],
+    "sqltools.useNodeRuntime": true
+}
