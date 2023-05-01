@@ -111,12 +111,16 @@ async def get_current_user(token: str = Depends(oauth2_scheme) , db: Session = D
             headers={"WWW-Authenticate": "Bearer"}
         )
     return current_user
-async def get_current_active_user(current_user: models.User = Depends(get_current_user)):
-    if not current_user.is_active:
-        raise HTTPException(status_code=400, detail="Inactive User")
-    return  current_user
 
 #@app.get('/users/me', response_model = schemas.User)
 #async def get_me(current_user: models.User = Depends(get_current_user)):
 #    return  current_user
+
+@app.get('/places/all')
+async def get_places(db: Session = Depends(get_db)):
+    return  crud.getPlaces(db)
+@app.get('/places/{type}')
+async def get_places_by_type( type: str , db: Session = Depends(get_db) ):
+    return  crud.getPlacesByType(db=db , TypeName=type)
+
 

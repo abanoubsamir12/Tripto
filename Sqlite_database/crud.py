@@ -28,3 +28,20 @@ def CreateUser(db: Session , user: schemas.UserCreate):
     db.commit()
     db.refresh(db_user)
     return  db_user
+
+
+def getPlaces(db: Session):
+    return db.query(models.Place).all()
+
+def getTypesByName(db: Session , name: str):
+    return  db.query(models.PlaceType).filter( name == models.PlaceType.name ).first()
+
+def getPlacesByType(db: Session , TypeName: str):
+    type = getTypesByName(db=db , name= TypeName)
+    print(type)
+    type_id = type.id
+    placesToTypes = db.query(models.PlaceToType).filter(type_id == models.PlaceToType.placeType_id).all()
+    list= set()
+    for x in placesToTypes:
+        list.add(db.query(models.Place).filter(x.place_id == models.Place.id ).first())
+    return list
