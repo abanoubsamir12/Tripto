@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Float
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Float, Double
 from sqlalchemy.orm import relationship
 from .database import Base
 
@@ -62,8 +62,7 @@ class Place(Base):
     city = Column(String)
     image= Column(String)
     description = Column(String)
-    geolat = Column(Float)
-    geolng = Column(Float)
+    rating = Column(Double)
 
 class PlaceToType(Base):
     __tablename__ = "placesToTypes"
