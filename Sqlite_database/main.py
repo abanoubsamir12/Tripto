@@ -13,6 +13,7 @@ from jose import jwt , JWTError
 import psycopg2
 from psycopg2.extras import RealDictCursor
 import time
+
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
