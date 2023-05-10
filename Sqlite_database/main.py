@@ -25,7 +25,7 @@ class Token(BaseModel):
     token_type:str
 
 class TokenData(BaseModel):
-    username: str |None = None
+    username: str
 
 def get_db():
     db = SessionLocal()
@@ -58,7 +58,7 @@ def authenticate_user(username: str , password: str , db:Session =Depends(get_db
         return  False
     return user
 
-def create_access_token(data: dict , expires_delta: timedelta | None = None):
+def create_access_token(data: dict , expires_delta: timedelta):
     to_encode = data.copy()
     if(expires_delta):
         expire = datetime.utcnow() +expires_delta
