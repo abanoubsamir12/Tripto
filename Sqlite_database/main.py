@@ -10,6 +10,11 @@ from .database import SessionLocal, engine
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from passlib.context import CryptContext
 from jose import jwt , JWTError
+import psycopg2
+from psycopg2.extras import RealDictCursor
+import time
+
+
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
@@ -122,5 +127,3 @@ async def get_places(db: Session = Depends(get_db)):
 @app.get('/places/{type}')
 async def get_places_by_type( type: str , db: Session = Depends(get_db) ):
     return  crud.getPlacesByType(db=db , TypeName=type)
-
-
