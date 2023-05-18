@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Float, Double
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Float, Double,JSON
 from sqlalchemy.orm import relationship
 from .database import Base
 
@@ -75,12 +75,22 @@ class Activity(Base):
     __tablename__="activities"
 
     id = Column(Integer, primary_key=True, index=True)
-    image = Column(String)
+    name = Column(String)
     description = Column(String)
     place_id = Column(Integer , ForeignKey("places.id"))
+    location= Column(String)
+    image = Column(JSON)
+    
+    
 
-class PlaceToActivity(Base):
-    __tablename__ = "placesToActivities"
+class activityToPlaces(Base):
+    __tablename__ = "activityToPlaces"
     id = Column(Integer, primary_key=True, index=True)
     place_id = Column(Integer, ForeignKey("places.id"))
     activity_id = Column(Integer, ForeignKey("activities.id"))
+
+class enterprenuerToActivity(Base):
+    __tablename__ = "enterprenuerToActivity"
+    id = Column(Integer, primary_key=True, index=True)
+    EnterprenuerID= (Integer, ForeignKey("users.id"))
+    activityID= (Integer, ForeignKey("activities.id"))
