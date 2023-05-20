@@ -42,8 +42,6 @@ class Rating(Base):
     __tablename__ = "ratings"
 
     id = Column(Integer, primary_key=True, index=True)
-    place_id = (Integer, ForeignKey("places.id"))
-    user_id = (Integer, ForeignKey("users.id"))
     rate = Column(Integer)
 
 
@@ -58,18 +56,25 @@ class PlaceType(Base):
 class Place(Base):
     __tablename__ = "places"
     id = Column(Integer , primary_key = True , index = True)
-    name = Column(String , unique = True)
-    city = Column(String)
-    image= Column(String)
+    placeName = Column(String , unique = True)
     description = Column(String)
-    rating = Column(Double)
+    address=Column(String)
+    image= Column(String)
+    rating=Column(Double)
+    location = Column(String)
 
 class PlaceToType(Base):
-    __tablename__ = "placesToTypes"
+    __tablename__ = "PlacesToTypes"
 
     id = Column(Integer , primary_key = True , index = True)
     place_id = Column(Integer , ForeignKey("places.id"))
     placeType_id = Column(Integer , ForeignKey("placeTypes.id"))
+
+class activityType(Base):
+    __tablename__ ="activityType"
+    id = Column(Integer , primary_key = True , index = True)
+    type= Column(String)
+
 
 class Activity(Base):
     __tablename__="activities"
@@ -78,19 +83,15 @@ class Activity(Base):
     name = Column(String)
     description = Column(String)
     place_id = Column(Integer , ForeignKey("places.id"))
+    activityType_id=Column(Integer , ForeignKey("activityType.id"))
     location= Column(String)
     image = Column(JSON)
     
     
 
-class activityToPlaces(Base):
-    __tablename__ = "activityToPlaces"
+class enterpreneurToActivity(Base):
+    __tablename__ = "enterprenuersToActivities"
+    
     id = Column(Integer, primary_key=True, index=True)
-    place_id = Column(Integer, ForeignKey("places.id"))
+    enterprenuer_id = Column(Integer, ForeignKey("users.id"))
     activity_id = Column(Integer, ForeignKey("activities.id"))
-
-class enterprenuerToActivity(Base):
-    __tablename__ = "enterprenuerToActivity"
-    id = Column(Integer, primary_key=True, index=True)
-    EnterprenuerID= (Integer, ForeignKey("users.id"))
-    activityID= (Integer, ForeignKey("activities.id"))

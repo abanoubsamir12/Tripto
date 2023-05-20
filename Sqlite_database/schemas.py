@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Union
 from pydantic import BaseModel, constr
 
 
@@ -27,6 +27,28 @@ class User(UserBase):
 
 class RolemBase(BaseModel):
     name: str
+
+
+class ActivityBase(BaseModel):
+    name: str
+    description: str
+    location: str
+    image: Union[list[str],str]
+    
+
+class Activity(ActivityBase):
+    place_id: int
+
+    class Config:
+        orm_mode = True
+
+class enterprenuerToActivity1(BaseModel):
+    EnterpreneuerID= int
+    activityID: int
+    
+class enterprenuerToActivity(enterprenuerToActivity1):
+    class Config:
+        orm_mode = True
 
 
 class ItemCreate(RolemBase):
@@ -108,18 +130,6 @@ class PlaceType(SearchHistoryBase):
         orm_mode = True
 
 
-class ActivityBase(BaseModel):
-    image: str
-    description: str
+#class ActivityCreate(SearchHistoryBase):
+ #   pass
 
-
-class ActivityCreate(SearchHistoryBase):
-    pass
-
-
-class Activity(SearchHistoryBase):
-    id: int
-    place_id: int
-
-    class Config:
-        orm_mode = True
