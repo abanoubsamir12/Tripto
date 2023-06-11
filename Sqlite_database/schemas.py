@@ -132,4 +132,6 @@ class PlaceType(SearchHistoryBase):
 
 #class ActivityCreate(SearchHistoryBase):
  #   pass
-
+class PlaceSearchResult(BaseModel):
+    id: int
+    placeName: str
