@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 from . import models , schemas 
 from passlib.context import CryptContext
 import json
+from gtts import gTTS
 
 image_list = ["string1", "string2", "string3"]
 json_object = json.dumps(image_list)
@@ -77,5 +78,6 @@ def CreateActivity(db: Session , activity: schemas.Activity):
     return  db_activity.id
 
 
-
-
+def getPlaceDes(db: Session , placeName: str):
+    place = db.query(models.Place).filter(placeName == models.Place.placeName ).first()
+    return place.description 
