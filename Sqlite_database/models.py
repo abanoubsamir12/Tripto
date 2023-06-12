@@ -62,6 +62,8 @@ class Place(Base):
     image= Column(String)
     rating=Column(Double)
     location = Column(String)
+    longitude = Column(Float)
+    latitude = Column(Float)
 
 class PlaceToType(Base):
     __tablename__ = "PlacesToTypes"

@@ -81,3 +81,4 @@ def CreateActivity(db: Session , activity: schemas.Activity):
 def getPlaceDes(db: Session , placeName: str):
     place = db.query(models.Place).filter(placeName == models.Place.placeName ).first()
     return place.description 
+
