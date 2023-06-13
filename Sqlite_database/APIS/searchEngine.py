@@ -8,6 +8,8 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import func
 from fastapi import Request
 
+
+
 app = APIRouter()
 
 def get_db():
