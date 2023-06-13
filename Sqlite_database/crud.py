@@ -39,6 +39,9 @@ def CreateUser(db: Session , user: schemas.UserCreate):
 def getPlaces(db: Session):
     return db.query(models.Place).all()
 
+def getPlaceByID(db: Session, id:int):
+    return db.query(models.Place).filter(id == models.Place.id).first()
+
 def getTypesByName(db: Session , name: str):
     return  db.query(models.PlaceType).filter( name == models.PlaceType.name ).first()
 
@@ -83,15 +86,3 @@ def getPlaceDes(db: Session , placeName: str):
     place = db.query(models.Place).filter(placeName == models.Place.placeName ).first()
     return place.description 
 
-
-
-
-def get_places_from_db(latitude: float, longitude: float, db: Session):
-    places = db.query(models.Place).filter(
-        func.earth_distance(
-            func.ll_to_earth(latitude, longitude),
-            func.ll_to_earth(models.Place.latitude, models.Place.longitude)
-        ) < 1000
-    ).all()
-
-    return places

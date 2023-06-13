@@ -17,9 +17,3 @@ def get_db():
         yield db
     finally:
         db.close()
-        
-
-@app.get("/nearbyPlaces")
-def get_nearby_places(latitude: float, longitude: float, db: Session = Depends(get_db)):
-    places = crud.get_places_from_db(latitude, longitude, db)
-    return {"places": places}
