@@ -1,3 +1,4 @@
+from sqlalchemy import Text, func
 from sqlalchemy.orm import Session
 from . import models , schemas 
 from passlib.context import CryptContext
@@ -82,3 +83,15 @@ def getPlaceDes(db: Session , placeName: str):
     place = db.query(models.Place).filter(placeName == models.Place.placeName ).first()
     return place.description 
 
+
+
+
+def get_places_from_db(latitude: float, longitude: float, db: Session):
+    places = db.query(models.Place).filter(
+        func.earth_distance(
+            func.ll_to_earth(latitude, longitude),
+            func.ll_to_earth(models.Place.latitude, models.Place.longitude)
+        ) < 1000
+    ).all()
+
+    return places
