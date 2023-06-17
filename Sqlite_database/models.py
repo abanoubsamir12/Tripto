@@ -30,12 +30,25 @@ class InterestToUser(Base):
     user_id = Column(Integer , ForeignKey("users.id"))
     interest_id = Column(Integer , ForeignKey("placeTypes.id"))
 
+class Place(Base):
+    __tablename__ = "places"
+    id = Column(Integer , primary_key = True , index = True)
+    placeName = Column(String , unique = True)
+    description = Column(String)
+    address=Column(String)
+    image= Column(String)
+    rating=Column(Double)
+    location = Column(String)
+    longitude = Column(Float)
+    latitude = Column(Float)
+
+
 class SearchHistory(Base):
     __tablename__ = "searchhistory"
 
     id = Column(Integer, primary_key=True, index=True)
     place_id = (Integer , ForeignKey("places.id"))
-    user_id = (Integer, ForeignKey("user.id"))
+    user_id = (Integer, ForeignKey("users.id"))
 
 
 class Rating(Base):
@@ -53,17 +66,6 @@ class PlaceType(Base):
     image = Column(String)
 
 
-class Place(Base):
-    __tablename__ = "places"
-    id = Column(Integer , primary_key = True , index = True)
-    placeName = Column(String , unique = True)
-    description = Column(String)
-    address=Column(String)
-    image= Column(String)
-    rating=Column(Double)
-    location = Column(String)
-    longitude = Column(Float)
-    latitude = Column(Float)
 
 class PlaceToType(Base):
     __tablename__ = "PlacesToTypes"

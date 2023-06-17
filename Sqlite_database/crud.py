@@ -82,7 +82,11 @@ def CreateActivity(db: Session , activity: schemas.Activity):
     return  db_activity.id
 
 
-def getPlaceDes(db: Session , placeName: str):
-    place = db.query(models.Place).filter(placeName == models.Place.placeName ).first()
-    return place.description 
+def getPlacesDes(db: Session):
+    list = []
+    places = db.query(models.Place).all()
+    for place in places:
+        list.append(place.description)
+    return list
+
 
