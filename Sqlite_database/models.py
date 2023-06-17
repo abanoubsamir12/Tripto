@@ -91,7 +91,6 @@ class Activity(Base):
     location= Column(String)
     image = Column(JSON)
     
-    
 
 class enterpreneurToActivity(Base):
     __tablename__ = "enterprenuersToActivities"
