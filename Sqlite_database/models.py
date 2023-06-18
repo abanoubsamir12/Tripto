@@ -55,6 +55,8 @@ class Rating(Base):
     __tablename__ = "ratings"
 
     id = Column(Integer, primary_key=True, index=True)
+    user_id=Column(Integer, ForeignKey("users.id"))
+    place_id=Column(Integer,ForeignKey("places.id")) 
     rate = Column(Integer)
 
 
@@ -98,3 +100,18 @@ class enterpreneurToActivity(Base):
     id = Column(Integer, primary_key=True, index=True)
     enterprenuer_id = Column(Integer, ForeignKey("users.id"))
     activity_id = Column(Integer, ForeignKey("activities.id"))
+
+class Nationality(Base):
+    __tablename__="Nationality"
+
+    id= Column(Integer, primary_key=True, index=True)
+    nationality = Column(String)
+     
+
+class nationalityToPlacetype(Base):
+    __tablename__= "nationalityToPlacetype"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    nationality_id =Column(Integer, ForeignKey("Nationality.id"))
+    PlaceType_id = Column(Integer, ForeignKey("placeTypes.id"))
+     
