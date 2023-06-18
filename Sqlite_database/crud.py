@@ -90,3 +90,12 @@ def getPlacesDes(db: Session):
     return list
 
 
+def getUserActivity(db:Session,userid:int):
+  user_places_viewed=db.query(models.SearchHistory).filter(userid==models.SearchHistory.user_id).all()
+  
+  places_viewed=[]
+  for x in user_places_viewed:
+      print(x.user_id)
+      places_viewed.append(x.place_id)
+  print(places_viewed)
+  return places_viewed 

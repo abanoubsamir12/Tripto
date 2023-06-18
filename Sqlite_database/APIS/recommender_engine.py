@@ -34,6 +34,10 @@ def tfIDF (db:Session=Depends(get_db)):
     places_description=crud.getPlacesDes(db=db)
     tfidf_vectorizer = TfidfVectorizer()
     # fit and transform the documents to get the TF-IDF scores in a matrix
-    tfidf_scores = tfidf_vectorizer.fit_transform(places_description)
-    return tfidf_scores
+    tfidf_scores = tfidf_vectorizer.fit_transform(places_description).toarray()
+    tfidf_scores_list = tfidf_scores.tolist()
+    return tfidf_scores_list
 
+@app.get('/userplaces')
+def userPlaces(userid:int,db:Session=Depends(get_db)):
+    return crud.getUserActivity(db=db,userid=userid)
