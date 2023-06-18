@@ -90,12 +90,23 @@ def getPlacesDes(db: Session):
     return list
 
 
+
+def addUserActivity(db:Session , userActivity: schemas.SearchHistoryCreate):
+    db_activity = models.SearchHistory(
+        place_id = userActivity.place_id,
+        user_id = userActivity.user_id
+    )
+    db.add(db_activity)
+    db.commit()
+    db.refresh(db_activity)
+    return  db_activity
+
 def getUserActivity(db:Session,userid:int):
-  user_places_viewed=db.query(models.SearchHistory).filter(userid==models.SearchHistory.user_id).all()
-  
-  places_viewed=[]
-  for x in user_places_viewed:
-      print(x.user_id)
-      places_viewed.append(x.place_id)
-  print(places_viewed)
-  return places_viewed 
+    user_places_viewed = db.query(models.SearchHistory).filter(userid == models.SearchHistory.user_id).all()
+    print(user_places_viewed)
+    places_viewed=[]
+    for x in user_places_viewed:
+        print(x.user_id)
+        places_viewed.append(x.place_id)
+    #print(places_viewed)
+    return places_viewed

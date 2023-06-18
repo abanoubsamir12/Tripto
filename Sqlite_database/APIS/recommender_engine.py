@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends
-from .. import crud 
+from .. import crud , schemas
 from Sqlite_database.database import SessionLocal
 from sqlalchemy.orm import Session
 from ..models import Place, Activity
@@ -30,7 +30,7 @@ def get_db():
 
 
 @app.get('/tf_idf')
-def tfIDF (db:Session=Depends(get_db)):
+async def tfIDF (db:Session=Depends(get_db)):
     places_description=crud.getPlacesDes(db=db)
     tfidf_vectorizer = TfidfVectorizer()
     # fit and transform the documents to get the TF-IDF scores in a matrix
@@ -39,5 +39,9 @@ def tfIDF (db:Session=Depends(get_db)):
     return tfidf_scores_list
 
 @app.get('/userplaces')
-def userPlaces(userid:int,db:Session=Depends(get_db)):
+async def userPlaces(userid:int,db:Session=Depends(get_db)):
     return crud.getUserActivity(db=db,userid=userid)
+
+@app.post('/adduserplaces')
+async def userAddPlaces(userActivity:schemas.SearchHistoryCreate,db:Session=Depends(get_db)):
+    return crud.addUserActivity(db=db,userActivity=userActivity)

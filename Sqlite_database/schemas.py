@@ -80,8 +80,8 @@ class InterestToUser(InterestToUserBase):
 
 
 class SearchHistoryBase(BaseModel):
-    pass
-
+    place_id: int
+    user_id: int
 
 class SearchHistoryCreate(SearchHistoryBase):
     pass
@@ -89,9 +89,6 @@ class SearchHistoryCreate(SearchHistoryBase):
 
 class SearchHistory(SearchHistoryBase):
     id: int
-    place_id: int
-    user_id: int
-
     class Config:
         orm_mode = True
 

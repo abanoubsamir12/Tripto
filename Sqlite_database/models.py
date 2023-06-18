@@ -45,10 +45,9 @@ class Place(Base):
 
 class SearchHistory(Base):
     __tablename__ = "searchhistory"
-
     id = Column(Integer, primary_key=True, index=True)
-    place_id = (Integer , ForeignKey("places.id"))
-    user_id = (Integer, ForeignKey("users.id"))
+    place_id = Column(Integer , ForeignKey("places.id"))
+    user_id = Column(Integer, ForeignKey("users.id"))
 
 
 class Rating(Base):
@@ -106,7 +105,6 @@ class Nationality(Base):
 
     id= Column(Integer, primary_key=True, index=True)
     nationality = Column(String)
-     
 
 class nationalityToPlacetype(Base):
     __tablename__= "nationalityToPlacetype"
@@ -114,4 +112,3 @@ class nationalityToPlacetype(Base):
     id = Column(Integer, primary_key=True, index=True)
     nationality_id =Column(Integer, ForeignKey("Nationality.id"))
     PlaceType_id = Column(Integer, ForeignKey("placeTypes.id"))
-     
