@@ -70,7 +70,7 @@ def get_nearest_places(latitude: float, longitude: float, db: Session = Depends(
             nearest_place = value
     return  text_to_speech(nearest_place.description)
 
-@app.get('/nerbyPlaces')
+@app.get('/nearbyPlaces')
 def get_nearby_places(latitude: float, longitude: float, n:int ,db: Session = Depends(get_db)):
     places = crud.getPlaces(db=db)
     map = {0 : max_double}
