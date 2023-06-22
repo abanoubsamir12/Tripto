@@ -95,9 +95,10 @@ class SearchHistory(SearchHistoryBase):
 
 class RatingBase(BaseModel):
     rate: int
+    place_id: int
+    user_id: int
 
-
-class RatingCreate(SearchHistoryBase):
+class RatingCreate(RatingBase):
     pass
 
 
@@ -105,7 +106,7 @@ class Rating(SearchHistoryBase):
     id: int
     place_id: int
     user_id: int
-
+  
     class Config:
         orm_mode = True
 
@@ -132,3 +133,16 @@ class PlaceType(SearchHistoryBase):
 class PlaceSearchResult(BaseModel):
     id: int
     placeName: str
+
+class PlaceBase(BaseModel):
+    placeName: str
+    description: str
+    address: str
+    image: str
+    rating: float
+    location: str
+    longitude: float
+    latitude: float
+
+class PlaceCreate(PlaceBase):
+    pass

@@ -14,7 +14,7 @@ from jose import jwt , JWTError
 import psycopg2
 from psycopg2.extras import RealDictCursor
 import time
-
+from ..schemas import SearchHistoryBase, SearchHistoryCreate
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -130,3 +130,17 @@ async def get_places(db: Session = Depends(get_db)):
 @app.get('/places/{type}')
 async def get_places_by_type( type: str , db: Session = Depends(get_db) ):
     return  crud.getPlacesByType(db=db , TypeName=type)
+
+class AddSearchHistoryResponse(BaseModel):
+    message: str 
+
+@app.post('/addSearchHistory')
+async def addSaearchHistory( viewed_place:schemas.SearchHistoryCreate, db:Session = Depends(get_db)):
+    
+    return crud.addUserActivity(db=db, userActivity=viewed_place)
+
+
+
+@app.post('/addRating')
+async def addRating(userRating:schemas.RatingCreate,db:Session = Depends(get_db)):
+    return crud.addUserRating(db=db, user_rate=userRating)
