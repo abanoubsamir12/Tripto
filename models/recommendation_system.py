@@ -74,7 +74,9 @@ def itemBasedCallobrativeModel(user_id, user_places_viewed, n_recommendations=5)
     # Get the places that the user has viewed
     viewed_places = user_places_viewed.loc[user_id][user_places_viewed.loc[user_id] == 1].index
     # Get the places that the similar users have viewed
-    similar_users_viewed_places = user_places_viewed.loc[user_places_viewed.index[top_similar_user_indices]][user_places_viewed.loc[user_places_viewed.index[top_similar_user_indices]] == 1].stack().reset_index()['level_1'].value_counts().index
+    similar_users_viewed_places = user_places_viewed.loc[user_places_viewed.index[top_similar_user_indices]]
+    [user_places_viewed.loc[user_places_viewed.index[top_similar_user_indices]] == 1].stack().reset_index()
+    ['level_1'].value_counts().index
     # Get the recommendations by finding the places that the similar users have viewed but the user has not viewed
     recommendations = list(set(similar_users_viewed_places) - set(viewed_places))[:n_recommendations]
     recommended_places=[]
