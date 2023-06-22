@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException,FastAPI,status
-from fastapi.responses import FileResponse
+from fastapi.responses import StreamingResponse
 from datetime import  timedelta , datetime , date
 from sqlalchemy.orm import Session
 #from http_exceptions import HTTPException
@@ -9,6 +9,7 @@ from math import radians, sin, cos, sqrt, atan2
 import sys
 from gtts import gTTS
 from itertools import islice
+from typing import Tuple
 
 
 app = APIRouter()
@@ -52,8 +53,8 @@ def text_to_speech(text: str):
     audio_file = "speech.mp3"
     tts.save(audio_file)
 
-    # Return the audio file as a response
-    return  FileResponse(audio_file, media_type="audio/mpeg")
+    # Return the audio file as a streaming response
+    return StreamingResponse(open(audio_file, "rb"), media_type="audio/mpeg")
 
 
 @app.get('/nearestPlace')
@@ -68,7 +69,11 @@ def get_nearest_places(latitude: float, longitude: float, db: Session = Depends(
         if(min > distance):
             min = distance
             nearest_place = value
-    return  text_to_speech(nearest_place.description)
+    if nearest_place:
+        return text_to_speech(nearest_place.description)
+    else:
+        return {"message": "No nearest place found."}
+
 
 @app.get('/nerbyPlaces')
 def get_nearby_places(latitude: float, longitude: float, n:int ,db: Session = Depends(get_db)):
