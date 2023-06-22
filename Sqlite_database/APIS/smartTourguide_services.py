@@ -70,6 +70,19 @@ def get_nearest_places(latitude: float, longitude: float, db: Session = Depends(
             min = distance
             nearest_place = value
     if nearest_place:
+        monuments = crud.getMonument(db=db , place_id=nearest_place.id)
+        if(monuments):
+            min = max_double
+            nearest_monument = monuments[0]
+            for value in monuments:
+                lng = value.longitude
+                lat = value.latitude
+                distance = calculate_distance(lat1=latitude,lon1=longitude,lat2=lat,lon2=lng)
+                if(min > distance):
+                    min = distance
+                    nearest_monument = value
+            return text_to_speech(nearest_monument.description)        
+                
         return text_to_speech(nearest_place.description)
     else:
         return {"message": "No nearest place found."}

@@ -42,6 +42,18 @@ class Place(Base):
     longitude = Column(Float)
     latitude = Column(Float)
 
+class Monument(Base):
+    __tablename__ = "monuments"
+    id = Column(Integer , primary_key = True , index = True)
+    place_id = Column(Integer , ForeignKey("places.id"))
+    MonumentName = Column(String , unique = True)
+    description = Column(String)
+    image= Column(String)
+    rating=Column(Double)
+    location = Column(String)
+    longitude = Column(Float)
+    latitude = Column(Float)
+    
 
 class SearchHistory(Base):
     __tablename__ = "searchhistory"
@@ -74,6 +86,7 @@ class PlaceToType(Base):
     id = Column(Integer , primary_key = True , index = True)
     place_id = Column(Integer , ForeignKey("places.id"))
     placeType_id = Column(Integer , ForeignKey("placeTypes.id"))
+
 
 class activityType(Base):
     __tablename__ ="activityType"
@@ -112,3 +125,4 @@ class nationalityToPlacetype(Base):
     id = Column(Integer, primary_key=True, index=True)
     nationality_id =Column(Integer, ForeignKey("Nationality.id"))
     PlaceType_id = Column(Integer, ForeignKey("placeTypes.id"))
+    

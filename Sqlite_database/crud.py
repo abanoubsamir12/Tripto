@@ -50,6 +50,9 @@ def addUserToRatingsCSV(user_id: int):
 
     return
 
+
+
+
 # add user to user_places_viewed.csv
 
 def addUserToUserPlacesViewed(user_id:int):
@@ -103,6 +106,7 @@ def getPlaceByID(db: Session, id:int):
 def getTypesByName(db: Session , name: str):
     return  db.query(models.PlaceType).filter( name == models.PlaceType.name ).first()
 
+
 def getPlacesByType(db: Session , TypeName: str):
     type = getTypesByName(db=db , name= TypeName)
     print(type)
@@ -112,7 +116,9 @@ def getPlacesByType(db: Session , TypeName: str):
     for x in placesToTypes:
         list.add(db.query(models.Place).filter(x.place_id == models.Place.id ).first())
     return list
-
+def getMonument(db: Session , place_id: int):
+    monuments = db.query(models.Monument).filter(place_id == models.Monument.place_id).all()
+    return monuments
 
 def assignActivityToEnterpreneur(db: Session ,enter_id:int , activity_id : int):
     print(enter_id , " " , activity_id)
