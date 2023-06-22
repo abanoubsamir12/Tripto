@@ -56,7 +56,7 @@ def text_to_speech(text: str):
     # Return the audio file as a streaming response
     return StreamingResponse(open(audio_file, "rb"), media_type="audio/mpeg")
 
-
+#handle
 @app.get('/nearestPlace')
 def get_nearest_places(latitude: float, longitude: float, db: Session = Depends(get_db)):
     places = crud.getPlaces(db=db)
