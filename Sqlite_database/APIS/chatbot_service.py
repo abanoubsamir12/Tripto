@@ -30,15 +30,15 @@ import pickle
 app = APIRouter()
 
 
-with open('models\chatbot\words.pkl', 'rb') as f:
+with open('AImodels\chatbot\words.pkl', 'rb') as f:
     words = pickle.load(f)
 
-with open('models\chatbot\classes.pkl', 'rb') as f:
+with open('AImodels\chatbot\classes.pkl', 'rb') as f:
     classes = pickle.load(f)        
 
-model = keras.models.load_model('models\chatbot\chatbot_model.h5')
+model = keras.models.load_model('AImodels\chatbot\chatbot_model.h5')
 
-data_file =  open('models\chatbot\intents.json').read()
+data_file =  open('AImodels\chatbot\intents.json').read()
 intents = json.loads(data_file)
 
 

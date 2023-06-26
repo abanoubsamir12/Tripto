@@ -14,12 +14,18 @@ import chardet
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import TfidfVectorizer
 import io
-import requests
+import requests 
 import csv
+import sys
+sys.path.append('E:\college\graduation_project\Tripto-1\models')
+import AImodels.recommendation_system
 
 
+
+places_CSV = r'E:\college\graduation_project\Tripto-1\Datasets\Places.csv'
 ratings_csv_path = r'E:\college\graduation_project\Tripto-1\Datasets\Ratings.csv'
 user_places_csv_path = r'E:\college\graduation_project\Tripto-1\Datasets\user_places_viewed.csv'
+
 
 
 app = APIRouter()
@@ -173,3 +179,13 @@ async def getUsersViewedPlaces(userid: int, db: Session = Depends(get_db)):
 @app.get('/userRatings/')
 async def getUserRatings(userid: int, db: Session = Depends(get_db)):
     return crud.getUserRatings(userid=userid, db=db)
+
+
+@app.get('/recommenderEngine')
+async def getRecommendedPlaces(userid:int, db:Session = Depends(get_db)):
+    user = db.query(models.User).filter(models.User.id == userid).first()
+    if not user:
+        return {"message": "User not found."}
+    tfidf_scores_list = await tfIDF(db=db)
+    return AImodels.recommendation_system.recommenderEngine(tfidf_scores_list,userid)
+
