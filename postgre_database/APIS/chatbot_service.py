@@ -2,8 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException,FastAPI
 from datetime import  timedelta , datetime , date
 from sqlalchemy.orm import Session
 #from http_exceptions import HTTPException
-from Sqlite_database import models , schemas , crud, database
-from Sqlite_database.database import SessionLocal, engine 
+from postgre_database import models , schemas , crud, database
+from postgre_database.database import SessionLocal, engine 
 import tensorflow as tf
 from tensorflow import keras
 from nltk.stem import WordNetLemmatizer
