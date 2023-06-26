@@ -34,5 +34,5 @@ async def add_activity(activity: schemas.Activity, id: int ,db: Session = Depend
     return crud.assignActivityToEnterpreneur(db , id , db_activity_id)
     
 @app.get('/getActivities')
-def get_activities(id: int , db: Session = Depends(get_db)):
-    return 1;
+def get_activities(enterprenuerid: int , db: Session = Depends(get_db)):
+    return crud.getEnterpreneurActivities(enterprenuerid, db)   
