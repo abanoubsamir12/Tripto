@@ -6,8 +6,8 @@ from uvicorn import run
 from datetime import  timedelta , datetime , date
 from sqlalchemy.orm import Session
 #from http_exceptions import HTTPException
-from Sqlite_database import models , schemas , crud, database
-from Sqlite_database.database import SessionLocal, engine
+from postgre_database import models , schemas , crud, database
+from postgre_database.database import SessionLocal, engine
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from passlib.context import CryptContext
 from jose import jwt , JWTError

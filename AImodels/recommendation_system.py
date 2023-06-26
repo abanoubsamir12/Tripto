@@ -19,9 +19,9 @@ import requests
 
 
 
-places_CSV = r'E:\college\graduation_project\Tripto-1\Datasets\Places.csv'
-ratings_csv_path = r'E:\college\graduation_project\Tripto-1\Datasets\Ratings.csv'
-user_places_csv_path = r'E:\college\graduation_project\Tripto-1\Datasets\user_places_viewed.csv'
+places_CSV = r'Datasets\Places.csv'
+ratings_csv_path = r'Datasets\Ratings.csv'
+user_places_csv_path = r'Datasets\user_places_viewed.csv'
 n_recommendations = 10
 """Loading Data"""
 
