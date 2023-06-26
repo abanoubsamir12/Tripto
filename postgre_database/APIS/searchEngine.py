@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 from .. import crud 
-from Sqlite_database.database import SessionLocal
+from postgre_database.database import SessionLocal
 from sqlalchemy.orm import Session
 from ..models import Place, Activity
 from flask import request, jsonify

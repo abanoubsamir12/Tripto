@@ -3,8 +3,8 @@ from fastapi.responses import StreamingResponse
 from datetime import  timedelta , datetime , date
 from sqlalchemy.orm import Session
 #from http_exceptions import HTTPException
-from Sqlite_database import models , schemas , crud, database
-from Sqlite_database.database import SessionLocal, engine
+from postgre_database import models , schemas , crud, database
+from postgre_database.database import SessionLocal, engine
 from math import radians, sin, cos, sqrt, atan2
 import sys
 from gtts import gTTS

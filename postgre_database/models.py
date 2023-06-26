@@ -104,6 +104,11 @@ class Activity(Base):
     activityType_id=Column(Integer , ForeignKey("activityType.id"))
     location= Column(String)
     image = Column(JSON)
+    Phone = Column(String)
+    price = Column(Double)
+    Time = Column(Integer)
+    socialmedia = Column(String)
+    
     
 
 class enterpreneurToActivity(Base):
