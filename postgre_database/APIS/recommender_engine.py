@@ -124,7 +124,6 @@ async def itemBasedCallobrativeModel(userid: int, db: Session = Depends(get_db))
     top_similar_user_indices = similar_user_indices[1:n_recommendations+1]
     # Get the places that the similar users have viewed
     similar_users_viewed_places = crud.getViewedPlacesForMatchedUsers(userid=userid, db=db)
-   
     recommended_places = []
 
     for i in similar_users_viewed_places:
@@ -142,12 +141,6 @@ async def get_recommendations(userid: int, db: Session = Depends(get_db)):
     return {"recommendations": recommendations}
 
 
-async def topRatedPlacesModel(userid: int, db: Session = Depends(get_db)):
-    # Compute the similarity matrix using cosine similarity
-    item_sim_matrix = cosine_similarity(ratings.T) #so2al
-    user_ratings = getUserRatings(userid=userid, db=db)
-    item_weights = item_sim_matrix[user_ratings]
-    item_scores = item_weights.dot(user_ratings) / item_weights.sum(axis=1)
 
 
 def topRatedPlacesModel(user_id, ratings,top_n=5):
