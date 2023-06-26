@@ -38,6 +38,11 @@ class ActivityBase(BaseModel):
 
 class Activity(ActivityBase):
     place_id: int
+    Phone : str
+    price : float
+    Time : int
+    socialmedia :str
+    
 
     class Config:
         orm_mode = True

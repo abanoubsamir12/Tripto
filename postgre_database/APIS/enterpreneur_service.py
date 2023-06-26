@@ -2,8 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException,FastAPI
 from datetime import  timedelta , datetime , date
 from sqlalchemy.orm import Session
 #from http_exceptions import HTTPException
-from Sqlite_database import models , schemas , crud, database
-from Sqlite_database.database import SessionLocal, engine
+from postgre_database import models , schemas , crud, database
+from postgre_database.database import SessionLocal, engine
 
 app = APIRouter()
 
@@ -32,4 +32,7 @@ async def add_activity(activity: schemas.Activity, id: int ,db: Session = Depend
         )
     #obj = schemas.enterprenuerToActivity(activityID=db_activity_id , EnterprenuerID=id)
     return crud.assignActivityToEnterpreneur(db , id , db_activity_id)
+    
+@app.get('/getActivities')
+def get_activities(id: int , db: Session = Depends(get_db)):
     
