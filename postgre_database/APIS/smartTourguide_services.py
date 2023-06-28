@@ -10,7 +10,8 @@ import sys
 from gtts import gTTS
 from itertools import islice
 from typing import Tuple
-
+from . import recommender_engine
+import random
 
 app = APIRouter()
 
@@ -95,7 +96,7 @@ def get_nearby_places(latitude: float, longitude: float, n:int ,db: Session = De
     for value in places:
         map[value.id] = calculate_distance(lat1=latitude,lon1=longitude,lat2=value.latitude,lon2=value.longitude)
     sorted_map = dict(sorted(map.items(), key=lambda item: item[1]))
-    nearest_places = []
+    nearest_places = list()
     if(n > len(places) | n<= 0):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -103,7 +104,89 @@ def get_nearby_places(latitude: float, longitude: float, n:int ,db: Session = De
         )
     for key, value in islice(sorted_map.items(), n):
         place = crud.getPlaceByID(db=db , id=key)
-        nearest_places.append(place)
+        nearest_places.append(place.id)
         
     return nearest_places
 
+async def generate_tourPackage(recommended_places_ids, nearby_places_ids, db: Session = Depends(get_db)):
+    package =  list(set(recommended_places_ids).intersection(nearby_places_ids))
+    recommended_places_ids = list(set(recommended_places_ids) - set(package))
+    nearby_places_ids = list(set(nearby_places_ids) - set(package))
+    recommended_places = []
+    nearby_places = []
+    for id in recommended_places_ids:
+        place = crud.getPlaceByID(db=db, id=id)
+        recommended_places.append(place)  # Await the coroutine function
+    for id in nearby_places_ids:
+        place = crud.getPlaceByID(db=db, id=id)
+        nearby_places.append(place)  # Await the coroutine function
+    if package:
+        if len(package) == 1:  # Fix the syntax error by adding the closing parenthesis
+            place1 = random.choice(nearby_places)
+            nearby_places.remove(place1)
+            package.append(place1.id)
+            random_number = random.randint(1, 2)
+            for i in range(random_number):  # Use range() to iterate the required number of times
+                print("xx")
+                place2 = random.choice(recommended_places)
+                distance = calculate_distance(place1.latitude, place1.longitude, place2.latitude, place2.longitude)
+                flag = False
+                if distance > 70:
+                    threshold = 60
+                    while distance > 70:
+                        threshold -= 1
+                        if threshold == 0:
+                            flag = True
+                            break
+                        place2 = random.choice(recommended_places)
+                        distance = calculate_distance(place1.latitude, place1.longitude, place2.latitude, place2.longitude)
+                        if distance < 70:
+                            package.append(place2.id)
+                            recommended_places.remove(place2)
+                            break
+                else:
+                    package.append(place2.id)
+                    recommended_places.remove(place2)
+                if flag:
+                    place2 = random.choice(nearby_places)
+                    package.append(place2.id)
+                    nearby_places.remove(place2)
+        else:
+            return package
+    else:
+        place1 = random.choice(nearby_places)
+        nearby_places.remove(place1)
+        package.append(place1.id)
+        random_number = random.randint(1, 3)
+        for i in range(random_number):  # Use range() to iterate the required number of times
+            place2 = random.choice(recommended_places)
+            distance = calculate_distance(place1.latitude, place1.longitude, place2.latitude, place2.longitude)
+            if distance > 70:
+                threshold = 60
+                flag = False
+                while distance > 70:
+                    threshold = threshold - 1
+                    if threshold == 0:
+                        flag = True
+                        break
+                    place2 = random.choice(recommended_places)
+                    distance = calculate_distance(place1.latitude, place1.longitude, place2.latitude, place2.longitude)
+                    if distance < 70:
+                        package.append(place2.id)
+                        recommended_places.remove(place2)
+                        break
+            else:
+                package.append(place2.id)
+    return package
+                    
+@app.get('/getTourPackage')
+async def get_tour_package(user_id: int, longitude:float , latitude:float, db: Session= Depends(get_db)):
+        
+    recommended_places = await recommender_engine.getRecommendedPlaces(user_id, db=db)
+    recommended_places = list(recommended_places)
+    nearby_places =list( get_nearby_places(latitude=latitude , longitude= longitude , n  = 10 , db=db))
+    
+    print(recommended_places)
+    print(nearby_places)
+    return await generate_tourPackage(recommended_places_ids=recommended_places,nearby_places_ids=nearby_places,db=db)                   
+    

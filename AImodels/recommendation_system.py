@@ -195,6 +195,4 @@ def recommenderEngine(tfidf_scores,userid):
         distinct_list.append(item)
   print (distinct_list[:n_recommendations])      
   return distinct_list[:n_recommendations]
- 
-
 # recommenderEngine(tfIDF(places_description),17)

@@ -180,5 +180,7 @@ async def getRecommendedPlaces(userid:int, db:Session = Depends(get_db)):
     if not user:
         return {"message": "User not found."}
     tfidf_scores_list = await tfIDF(db=db)
-    return AImodels.recommendation_system.recommenderEngine(tfidf_scores_list,userid)
+    recommended_list = AImodels.recommendation_system.recommenderEngine(tfidf_scores_list,userid)
+    origin_list = [int(num) for num in recommended_list]
+    return list(origin_list) 
 
