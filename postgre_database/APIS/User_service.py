@@ -138,3 +138,36 @@ async def addSaearchHistory( viewed_place:schemas.SearchHistoryCreate, db:Sessio
 @app.post('/addRating')
 async def addRating(userRating:schemas.RatingCreate,db:Session = Depends(get_db)):
     return crud.addUserRating(db=db, user_rate=userRating)
+
+@app.post('/addFavplace')
+async def addFavPlace(placeToUser:schemas.PlaceToUser , db:Session = Depends(get_db)):
+    place =crud.addFavPlace(placeToUser=placeToUser ,db=db )
+    if place:
+        return place
+    raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=" already exists",
+        )
+
+@app.get('/getFavplaces')
+async def getFavPlaces(userid: int , db:Session = Depends(get_db)):
+    places=  crud.getFavPlaces(userid=userid , db=db)
+    if places:
+        return places
+    raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="NO FAVORITE PLACES",
+        )
+    
+
+@app.delete("/deleteFavPlace/{FavPlace_id}")
+def delete_data_endpoint(placeid: int,userid:int, db: Session = Depends(get_db)):
+    deleted_data = crud.deleteFavPlace(db, userid=userid , placeid=placeid)
+    if not deleted_data:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Data not found",
+        )
+    return {"message": "place deleted successfully"}
+
+    
