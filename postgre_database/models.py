@@ -54,6 +54,11 @@ class Monument(Base):
     longitude = Column(Float)
     latitude = Column(Float)
     
+class PlacesToUsers(Base):
+    __tablename__ = "placesToUsers"
+    id = Column(Integer , primary_key = True , index = True)
+    placeid = Column(Integer , ForeignKey("places.id"))
+    userid = Column(Integer , ForeignKey("users.id"))
 
 class SearchHistory(Base):
     __tablename__ = "searchhistory"

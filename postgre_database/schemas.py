@@ -131,7 +131,11 @@ class PlaceType(SearchHistoryBase):
 
     class Config:
         orm_mode = True
-
+class PlaceToUser(BaseModel):
+    placeid: int
+    userid: int
+    class Config:
+        orm_mode = True
 
 #class ActivityCreate(SearchHistoryBase):
  #   pass

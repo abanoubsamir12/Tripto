@@ -9,7 +9,7 @@ import json
 from gtts import gTTS
 import csv
 from sqlalchemy.exc import IntegrityError
-
+from typing import List
 ratings_csv_path = r'Datasets\Ratings.csv'
 user_places_csv_path = r'Datasets\user_places_viewed.csv'
 
@@ -458,6 +458,7 @@ def getActivitesForPlace(placeid:int, db:Session):
     activities = db.query(models.Activity).filter(placeid == models.Activity.place_id).all()
     return activities
 
+<<<<<<< HEAD
 def updateUser(db: Session, user: models.User, user_update: schemas.UserUpdate):
     # Update the user attributes with the provided data
     if user_update.password:
@@ -484,3 +485,35 @@ def updateUser(db: Session, user: models.User, user_update: schemas.UserUpdate):
 def getTopRatedPlaces(db:Session):
     places = db.query(models.Place).order_by(desc(models.Place.rating)).limit(10).all()
     return places
+=======
+
+
+
+
+def addFavPlace(placeToUser: schemas.PlaceToUser, db:Session):
+    check_duplicate = db.query(models.PlacesToUsers).filter_by(placeid=placeToUser.placeid, userid = placeToUser.userid).first()
+    if check_duplicate:
+        return None
+    db_placeToUser = models.PlacesToUsers(
+        placeid = placeToUser.placeid,
+        userid = placeToUser.userid        
+    )
+    db.add(db_placeToUser)
+    db.commit()
+    db.refresh(db_placeToUser)
+    return db_placeToUser
+
+def getFavPlaces(userid: int, db: Session) -> List[int]:
+    places_to_user = db.query(models.PlacesToUsers).filter(models.PlacesToUsers.userid == userid).all()
+    places = [place.placeid for place in places_to_user]
+    return places
+    
+def deleteFavPlace(db: Session, placeid: int, userid:int):
+    data = db.query(models.PlacesToUsers).filter_by(placeid=placeid , userid=userid).first()
+    if not data:
+        return None
+
+    db.delete(data)
+    db.commit()
+    return data
+>>>>>>> 097036cb2bfd8a58ee205acb223f1f34bb13d1b2

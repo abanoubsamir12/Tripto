@@ -1,7 +1,7 @@
 import datetime
 
 from pydantic import BaseModel
-from fastapi import APIRouter , Body , Cookie , Header , Depends,status, HTTPException
+from fastapi import APIRouter , Body , Cookie , Header , Depends,status, HTTPException,Response
 from uvicorn import run
 from datetime import  timedelta , datetime , date
 from sqlalchemy.orm import Session
@@ -120,10 +120,19 @@ async def get_current_user(token: str = Depends(oauth2_scheme) , db: Session = D
         )
     return current_user
 
+@app.post("/logout")
+def logout(response: Response):
+    response.delete_cookie("access_token")
+    response.delete_cookie("refresh_token")
+    response.status_code = 200
+    return {"message": "Logged out successfully"}
+
+
 #@app.get('/users/me', response_model = schemas.User)
 #async def get_me(current_user: models.User = Depends(get_current_user)):
 #    return  current_user
 
+<<<<<<< HEAD
 @app.get('/places/all')
 async def get_places(db: Session = Depends(get_db)):
     return  crud.getPlaces(db)
@@ -131,6 +140,8 @@ async def get_places(db: Session = Depends(get_db)):
 @app.get('/places/{type}')
 async def get_places_by_type( type: str , db: Session = Depends(get_db) ):
     return  crud.getPlacesByType(db=db , TypeName=type)
+=======
+>>>>>>> 097036cb2bfd8a58ee205acb223f1f34bb13d1b2
 
 class AddSearchHistoryResponse(BaseModel):
     message: str 
@@ -146,6 +157,7 @@ async def addSaearchHistory( viewed_place:schemas.SearchHistoryCreate, db:Sessio
 async def addRating(userRating:schemas.RatingCreate,db:Session = Depends(get_db)):
     return crud.addUserRating(db=db, user_rate=userRating)
 
+<<<<<<< HEAD
 @app.put('/editUser/{userid}')
 async def editUser(userid: int, user: schemas.UserUpdate, db: Session = Depends(get_db)):
     user_db = crud.getUserByID(db, userid)
@@ -159,3 +171,37 @@ async def editUser(userid: int, user: schemas.UserUpdate, db: Session = Depends(
 @app.get('/topRatedPlaces')
 async def topRatedPlaces(db:Session = Depends(get_db)):
     return crud.getTopRatedPlaces(db)
+=======
+@app.post('/addFavplace')
+async def addFavPlace(placeToUser:schemas.PlaceToUser , db:Session = Depends(get_db)):
+    place =crud.addFavPlace(placeToUser=placeToUser ,db=db )
+    if place:
+        return place
+    raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=" already exists",
+        )
+
+@app.get('/getFavplaces')
+async def getFavPlaces(userid: int , db:Session = Depends(get_db)):
+    places=  crud.getFavPlaces(userid=userid , db=db)
+    if places:
+        return places
+    raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="NO FAVORITE PLACES",
+        )
+    
+
+@app.delete("/deleteFavPlace")
+def delete_FavPlace(placeid: int,userid:int, db: Session = Depends(get_db)):
+    deleted_data = crud.deleteFavPlace(db, userid=userid , placeid=placeid)
+    if not deleted_data:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Data not found",
+        )
+    return {"message": "place deleted successfully"}
+
+    
+>>>>>>> 097036cb2bfd8a58ee205acb223f1f34bb13d1b2
