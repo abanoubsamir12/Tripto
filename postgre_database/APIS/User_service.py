@@ -160,7 +160,7 @@ async def getFavPlaces(userid: int , db:Session = Depends(get_db)):
         )
     
 
-@app.delete("/deleteFavPlace/{FavPlace_id}")
+@app.delete("/deleteFavPlace")
 def delete_data_endpoint(placeid: int,userid:int, db: Session = Depends(get_db)):
     deleted_data = crud.deleteFavPlace(db, userid=userid , placeid=placeid)
     if not deleted_data:
