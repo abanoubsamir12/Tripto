@@ -1,7 +1,7 @@
 import datetime
 
 from pydantic import BaseModel
-from fastapi import APIRouter , Body , Cookie , Header , Depends,status, HTTPException
+from fastapi import APIRouter , Body , Cookie , Header , Depends,status, HTTPException,Response
 from uvicorn import run
 from datetime import  timedelta , datetime , date
 from sqlalchemy.orm import Session
@@ -120,6 +120,14 @@ async def get_current_user(token: str = Depends(oauth2_scheme) , db: Session = D
         )
     return current_user
 
+@app.post("/logout")
+def logout(response: Response):
+    response.delete_cookie("access_token")
+    response.delete_cookie("refresh_token")
+    response.status_code = 200
+    return {"message": "Logged out successfully"}
+
+
 #@app.get('/users/me', response_model = schemas.User)
 #async def get_me(current_user: models.User = Depends(get_current_user)):
 #    return  current_user
@@ -161,7 +169,7 @@ async def getFavPlaces(userid: int , db:Session = Depends(get_db)):
     
 
 @app.delete("/deleteFavPlace")
-def delete_data_endpoint(placeid: int,userid:int, db: Session = Depends(get_db)):
+def delete_FavPlace(placeid: int,userid:int, db: Session = Depends(get_db)):
     deleted_data = crud.deleteFavPlace(db, userid=userid , placeid=placeid)
     if not deleted_data:
         raise HTTPException(
