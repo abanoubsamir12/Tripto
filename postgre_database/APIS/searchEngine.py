@@ -7,6 +7,12 @@ from flask import request, jsonify
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import func
 from fastapi import Request
+from fastapi import APIRouter, Depends, Request
+
+# from fuzzywuzzy import fuzz
+# from fuzzywuzzy import process
+
+
 
 
 
@@ -36,13 +42,21 @@ def search_place(request: Request, db: Session = Depends(get_db)):
         func.lower(Activity.description).like(f'%{search_query.lower()}%') |
         func.lower(Activity.location).like(f'%{search_query.lower()}%')
     ).all()
-    
+    # place_ratios = process.extract(search_query, [place.placeName for place in place_results])
+    # activity_ratios = process.extract(search_query, [activity.name for activity in activity_results])
+
 
     # Format the results as JSON
     # places = [{'placeID': place.id, 'placeName': place.placeName} for place in place_results]
     # activities = [{'activityID': activity.id, 'activityName': activity.name} for activity in activity_results]
 
         # Format the results as JSON
+
+    # Filter the results based on a minimum similarity ratio (e.g., 80)
+    # min_ratio = 80
+    # filtered_place_results = [place for place, ratio in place_ratios if ratio >= min_ratio]
+    # filtered_activity_results = [activity for activity, ratio in activity_ratios if ratio >= min_ratio]
+
     places = [
         {
             'placeID': place.id,

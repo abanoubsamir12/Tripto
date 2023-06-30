@@ -452,3 +452,8 @@ def getEnterpreneurActivities(enterpreneurid:int, db:Session):
     for x in enterpreneurActivities:
         activities.append(x.activity_id)
     return activities
+
+
+def getActivitesForPlace(placeid:int, db:Session):
+    activities = db.query(models.Activity).filter(placeid == models.Activity.place_id).all()
+    return activities

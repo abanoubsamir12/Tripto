@@ -33,3 +33,7 @@ def create_place(place: PlaceCreate, db: Session = Depends(get_db)):
     
     return crud.createPlace(db=db,place=place)
     
+
+@app.get('/getActivitesForOnePlace')
+def getActivitesForOnePlace(placeid:int, db:Session = Depends(get_db)):
+    return crud.getActivitesForPlace(placeid=placeid, db=db)
