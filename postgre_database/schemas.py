@@ -18,8 +18,8 @@ class UserCreate(UserBase):
 class User(UserBase):
     id: int
     is_active: bool
-    geolat: float
-    geolng: float
+#    geolat: float
+#    geolng: float
 
     class Config:
         orm_mode = True

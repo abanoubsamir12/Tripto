@@ -10,8 +10,8 @@ from gtts import gTTS
 import csv
 from sqlalchemy.exc import IntegrityError
 
-ratings_csv_path = r'E:\college\graduation_project\Tripto-1\Datasets\Ratings.csv'
-user_places_csv_path = r'E:\college\graduation_project\Tripto-1\Datasets\user_places_viewed.csv'
+ratings_csv_path = r'Datasets\Ratings.csv'
+user_places_csv_path = r'Datasets\user_places_viewed.csv'
 
 image_list = ["string1", "string2", "string3"]
 json_object = json.dumps(image_list)

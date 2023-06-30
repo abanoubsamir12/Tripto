@@ -13,8 +13,8 @@ class User(Base):
     country = Column(String)
     username= Column(String, unique = True , index = True)
     role_id = Column(Integer , ForeignKey("roles.id"))
-    geolat = Column(Float)
-    geolng = Column(Float)
+    #geolat = Column(Float)
+    #geolng = Column(Float)
 
 class Role(Base):
     __tablename__ = "roles"
