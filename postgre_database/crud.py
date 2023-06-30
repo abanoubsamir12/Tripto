@@ -1,7 +1,7 @@
 from itertools import chain
 from fastapi import HTTPException,status
 import pandas as pd
-from sqlalchemy import Text, func
+from sqlalchemy import Text, desc, func
 from sqlalchemy.orm import Session
 from . import models , schemas 
 from passlib.context import CryptContext
@@ -458,33 +458,29 @@ def getActivitesForPlace(placeid:int, db:Session):
     activities = db.query(models.Activity).filter(placeid == models.Activity.place_id).all()
     return activities
 
+def updateUser(db: Session, user: models.User, user_update: schemas.UserUpdate):
+    # Update the user attributes with the provided data
+    if user_update.password:
+        user.hashed_password = user_update.password
+    if user_update.email:
+        user.email = user_update.email
+    if user_update.age:
+        user.age = user_update.age
+    if user_update.country:
+        user.country = user_update.country
+    if user_update.username:
+        user.username = user_update.username
+    if user_update.role_id:
+        user.role_id = user_update.role_id
 
-
-
-
-def addFavPlace(placeToUser: schemas.PlaceToUser, db:Session):
-    check_duplicate = db.query(models.PlacesToUsers).filter_by(placeid=placeToUser.placeid, userid = placeToUser.userid).first()
-    if check_duplicate:
-        return None
-    db_placeToUser = models.PlacesToUsers(
-        placeid = placeToUser.placeid,
-        userid = placeToUser.userid        
-    )
-    db.add(db_placeToUser)
+    # Save the changes to the database
+    db.add(user)
     db.commit()
-    db.refresh(db_placeToUser)
-    return db_placeToUser
+    db.refresh(user)
 
-def getFavPlaces(userid: int, db: Session) -> List[int]:
-    places_to_user = db.query(models.PlacesToUsers).filter(models.PlacesToUsers.userid == userid).all()
-    places = [place.placeid for place in places_to_user]
+    return user
+
+
+def getTopRatedPlaces(db:Session):
+    places = db.query(models.Place).order_by(desc(models.Place.rating)).limit(10).all()
     return places
-    
-def deleteFavPlace(db: Session, placeid: int, userid:int):
-    data = db.query(models.PlacesToUsers).filter_by(placeid=placeid , userid=userid).first()
-    if not data:
-        return None
-
-    db.delete(data)
-    db.commit()
-    return data

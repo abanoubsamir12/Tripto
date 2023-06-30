@@ -22,9 +22,9 @@ import AImodels.recommendation_system
 
 
 
-places_CSV = r'E:\college\graduation_project\Tripto-1\Datasets\Places.csv'
-ratings_csv_path = r'E:\college\graduation_project\Tripto-1\Datasets\Ratings.csv'
-user_places_csv_path = r'E:\college\graduation_project\Tripto-1\Datasets\user_places_viewed.csv'
+places_CSV = r'Datasets\Places.csv'
+ratings_csv_path = r'Datasets\Ratings.csv'
+user_places_csv_path = r'Datasets\user_places_viewed.csv'
 
 
 
@@ -68,8 +68,6 @@ async def tfIDF(db: Session = Depends(get_db)):
     return tfidf_scores_list
 
 
-
-
 @app.get('/userplaces')
 async def userPlaces(userid:int,db:Session=Depends(get_db)):
     return crud.getUserActivity(db=db,userid=userid)
@@ -105,7 +103,6 @@ async def get_recommendations(userid: int, db: Session = Depends(get_db)):
     # if not recommendations:
     #     return {"message": "No recommendations found."}
     return {"recommendations": recommendations}
-
 
 
 async def itemBasedCallobrativeModel(userid: int, db: Session = Depends(get_db)):
@@ -156,8 +153,6 @@ def topRatedPlacesModel(user_id, ratings,top_n=5):
     recommendations = item_scores.sort_values(ascending=False).head(top_n)
     int_list = [int(x) for x in recommendations.index.tolist()]
     return int_list
-
-
 
 
 

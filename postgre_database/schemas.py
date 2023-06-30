@@ -1,4 +1,4 @@
-from typing import List, Union
+from typing import List, Union, Optional
 from pydantic import BaseModel, constr
 
 
@@ -155,3 +155,11 @@ class PlaceBase(BaseModel):
 
 class PlaceCreate(PlaceBase):
     pass
+
+class UserUpdate(UserBase):
+    password: Optional[str] = None
+    email: Optional[str] = None
+    age: Optional[int] = None
+    country: Optional[str] = None
+    username: Optional[str] = None
+    role_id: Optional[int] = None
