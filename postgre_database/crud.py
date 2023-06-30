@@ -1,7 +1,7 @@
 from itertools import chain
 from fastapi import HTTPException,status
 import pandas as pd
-from sqlalchemy import Text, func
+from sqlalchemy import Text, desc, func
 from sqlalchemy.orm import Session
 from . import models , schemas 
 from passlib.context import CryptContext
@@ -457,3 +457,30 @@ def getEnterpreneurActivities(enterpreneurid:int, db:Session):
 def getActivitesForPlace(placeid:int, db:Session):
     activities = db.query(models.Activity).filter(placeid == models.Activity.place_id).all()
     return activities
+
+def updateUser(db: Session, user: models.User, user_update: schemas.UserUpdate):
+    # Update the user attributes with the provided data
+    if user_update.password:
+        user.hashed_password = user_update.password
+    if user_update.email:
+        user.email = user_update.email
+    if user_update.age:
+        user.age = user_update.age
+    if user_update.country:
+        user.country = user_update.country
+    if user_update.username:
+        user.username = user_update.username
+    if user_update.role_id:
+        user.role_id = user_update.role_id
+
+    # Save the changes to the database
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+
+    return user
+
+
+def getTopRatedPlaces(db:Session):
+    places = db.query(models.Place).order_by(desc(models.Place.rating)).limit(10).all()
+    return places

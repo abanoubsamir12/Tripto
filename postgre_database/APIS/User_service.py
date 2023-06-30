@@ -127,6 +127,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme) , db: Session = D
 @app.get('/places/all')
 async def get_places(db: Session = Depends(get_db)):
     return  crud.getPlaces(db)
+
 @app.get('/places/{type}')
 async def get_places_by_type( type: str , db: Session = Depends(get_db) ):
     return  crud.getPlacesByType(db=db , TypeName=type)
@@ -144,3 +145,17 @@ async def addSaearchHistory( viewed_place:schemas.SearchHistoryCreate, db:Sessio
 @app.post('/addRating')
 async def addRating(userRating:schemas.RatingCreate,db:Session = Depends(get_db)):
     return crud.addUserRating(db=db, user_rate=userRating)
+
+@app.put('/editUser/{userid}')
+async def editUser(userid: int, user: schemas.UserUpdate, db: Session = Depends(get_db)):
+    user_db = crud.getUserByID(db, userid)
+    if not user_db:
+        raise HTTPException(
+            status_code=404,
+            detail="User not found"
+        )
+    return crud.updateUser(db, user_db, user)
+
+@app.get('/topRatedPlaces')
+async def topRatedPlaces(db:Session = Depends(get_db)):
+    return crud.getTopRatedPlaces(db)
