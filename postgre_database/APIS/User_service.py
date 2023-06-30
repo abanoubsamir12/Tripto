@@ -124,12 +124,6 @@ async def get_current_user(token: str = Depends(oauth2_scheme) , db: Session = D
 #async def get_me(current_user: models.User = Depends(get_current_user)):
 #    return  current_user
 
-@app.get('/places/all')
-async def get_places(db: Session = Depends(get_db)):
-    return  crud.getPlaces(db)
-@app.get('/places/{type}')
-async def get_places_by_type( type: str , db: Session = Depends(get_db) ):
-    return  crud.getPlacesByType(db=db , TypeName=type)
 
 class AddSearchHistoryResponse(BaseModel):
     message: str 
