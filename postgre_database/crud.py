@@ -460,8 +460,9 @@ def getActivitesForPlace(placeid:int, db:Session):
 
 def updateUser(db: Session, user: models.User, user_update: schemas.UserUpdate):
     # Update the user attributes with the provided data
+    
     if user_update.password:
-        user.hashed_password = user_update.password
+        user.hashed_password = get_hash_passowrd(user_update.password)
     if user_update.email:
         user.email = user_update.email
     if user_update.age:
