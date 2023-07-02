@@ -164,6 +164,16 @@ async def addFavPlace(placeToUser:schemas.PlaceToUser , db:Session = Depends(get
             detail=" already exists",
         )
 
+@app.get('/getFavplacesIDs')
+async def getFavPlaces(userid: int , db:Session = Depends(get_db)):
+    places=  crud.getFavPlacesID(userid=userid , db=db)
+    if places:
+        return places
+    raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="NO FAVORITE PLACES",
+        )
+
 @app.get('/getFavplaces')
 async def getFavPlaces(userid: int , db:Session = Depends(get_db)):
     places=  crud.getFavPlaces(userid=userid , db=db)
