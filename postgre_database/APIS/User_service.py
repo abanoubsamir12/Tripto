@@ -254,4 +254,5 @@ async def getSearchHistoryForUser(userid:int, db:Session = Depends(get_db)):
     for row in search_history:
         place = db.query(models.Place).filter(row.place_id == models.Place.id).first()
         places.append(place)
-    return places
+    reversed_places = list(reversed(places))
+    return reversed_places
