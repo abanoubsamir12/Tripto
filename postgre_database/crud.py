@@ -529,3 +529,17 @@ def get_places_ids(db:Session):
             ids.append(place.id)
         return ids 
 
+def add_placetypeOfUser(userid:int,interest:schemas.userToPlaceTypeCreate, db:Session):
+    placetype = db.query(models.PlaceType).filter_by(i == models.PlaceType.name).first()
+    
+    db_placetypeToUser = models.userToPlaceType(
+        placetypeid = interest.placetypeid,
+        userid = interest.userid   
+    )
+    db.add(db_placetypeToUser)
+    db.commit()
+    db.refresh(db_placetypeToUser)
+
+    return db_placetypeToUser
+
+    

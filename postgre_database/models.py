@@ -136,3 +136,10 @@ class nationalityToPlacetype(Base):
     nationality_id =Column(Integer, ForeignKey("Nationality.id"))
     PlaceType_id = Column(Integer, ForeignKey("placeTypes.id"))
     
+class userToPlaceType(Base):
+    __tablename__="userToPlaceType"
+
+    id = Column(Integer, primary_key=True, index=True)
+    userid =  Column(Integer, ForeignKey("users.id"))
+    placetypeid = Column(Integer, ForeignKey("placeTypes.id"))
+

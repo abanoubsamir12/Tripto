@@ -134,6 +134,7 @@ class PlaceType(SearchHistoryBase):
 class PlaceToUser(BaseModel):
     placeid: int
     userid: int
+
     class Config:
         orm_mode = True
 
@@ -163,3 +164,13 @@ class UserUpdate(UserBase):
     country: Optional[str] = None
     username: Optional[str] = None
     role_id: Optional[int] = None
+
+class userToPlaceTypeBase(BaseModel):
+    userid:int
+    placetypeid:int
+
+    class Config:
+        orm_mode = True
+
+class userToPlaceTypeCreate(userToPlaceTypeBase):
+    pass

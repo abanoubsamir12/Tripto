@@ -200,3 +200,28 @@ async def editUser(userid: int, user: schemas.UserUpdate, db: Session = Depends(
 @app.get('/topRatedPlaces')
 async def topRatedPlaces(db:Session = Depends(get_db)):
     return crud.getTopRatedPlaces(db)
+
+@app.post('/interestsOfNewUser')
+async def newUserInterests(userid:int, interests:list, db:Session = Depends(get_db)):
+    for interest in interests:
+        placetype = db.query(models.PlaceType).filter_by(name=interest).first()
+        db_placetypeToUser = models.userToPlaceType(
+            placetypeid=placetype.id,
+            userid=userid   
+        )
+        db.add(db_placetypeToUser)
+        db.commit()
+        db.refresh(db_placetypeToUser)
+    return {"message": "Interests added successfully"}
+
+@app.get('/getSearchHistoryForUser')
+async def getSearchHistoryForUser(userid:int, db:Session = Depends(get_db)):
+    search_history = db.query(models.SearchHistory).filter(userid == models.SearchHistory.user_id).all()
+    if not search_history:
+        return {"message": "User does not have search history"}
+    places=[]
+    for row in search_history:
+        place = db.query(models.Place).filter(row.place_id == models.Place.id).first()
+        places.append(place)
+    
+    return places
