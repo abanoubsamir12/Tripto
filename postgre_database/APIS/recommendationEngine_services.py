@@ -48,7 +48,7 @@ def get_dict(users_id, db: Session = Depends(get_db)):
     return dictionary
         
 
-async def get_recommended_places(user_id: int,db: Session= Depends(get_db)):
+def get_recommended_places(user_id: int,db: Session):
     places_description = get_places_description(db=db)
     users_ids = crud.get_users_ids(db=db)
     tfidf = tfIDF(places_description=places_description)
@@ -61,14 +61,7 @@ async def get_recommended_places(user_id: int,db: Session= Depends(get_db)):
 @app.get('/recommendedP')
 async def get_recommended(user_id: int , db: Session = Depends(get_db)):
     
-    places_description = get_places_description(db=db)
-    users_ids = crud.get_users_ids(db=db)
-    tfidf = tfIDF(places_description=places_description)
-    places_viewed = get_user_places_viewed(user_id=user_id, db=db)
-    users_places_dict = get_dict(users_id=users_ids, db=db)
-    recommended_places = recommenderEngine(tfidf_scores=tfidf , userid=user_id ,user_ids=users_ids, user_places_viewed=places_viewed
-                                                ,users_places_dict=users_places_dict ,n_recommendations=5)
-
+    recommended_places = get_recommended_places(user_id=user_id , db=db)
     places = []
     for id in recommended_places:
         place =  crud.getPlaceByID(db=db , id = id)

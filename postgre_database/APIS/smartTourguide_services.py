@@ -89,7 +89,9 @@ def get_nearest_places(latitude: float, longitude: float, db: Session = Depends(
         return {"message": "No nearest place found."}
 
 
-@app.get('/nearbyPlaces')
+
+
+
 def get_nearby_places(latitude: float, longitude: float, n:int ,db: Session = Depends(get_db)):
     places = crud.getPlaces(db=db)
     map = {0 : max_double}
@@ -108,7 +110,17 @@ def get_nearby_places(latitude: float, longitude: float, n:int ,db: Session = De
         
     return nearest_places
 
-async def generate_tourPackage(recommended_places_ids, nearby_places_ids, db: Session = Depends(get_db)):
+@app.get('/nearbyPlaces')
+def get_nearby(latitude: float, longitude: float, n:int ,db: Session = Depends(get_db)):
+    nearby_places = get_nearby_places(latitude=latitude , longitude=longitude , n=n , db=db)
+    places = []
+    for id in nearby_places:
+        place =  crud.getPlaceByID(db=db , id = id)
+        places.append(place)
+    return places
+
+
+def generate_tourPackage(recommended_places_ids, nearby_places_ids, db: Session = Depends(get_db)):
     package =  list(set(recommended_places_ids).intersection(nearby_places_ids))
     recommended_places_ids = list(set(recommended_places_ids) - set(package))
     nearby_places_ids = list(set(nearby_places_ids) - set(package))
@@ -179,14 +191,18 @@ async def generate_tourPackage(recommended_places_ids, nearby_places_ids, db: Se
                 package.append(place2.id)
     return package
                     
-@app.get('/getTourPackage')
-async def get_tour_package(user_id: int, longitude:float , latitude:float, db: Session= Depends(get_db)):
+def get_tour_package(user_id: int, longitude:float , latitude:float, db: Session):
         
-    recommended_places = await recommendationEngine_services.get_recommended_places(user_id, db=db)
+    recommended_places = recommendationEngine_services.get_recommended_places(user_id, db=db)
     recommended_places = list(recommended_places)
     nearby_places =list( get_nearby_places(latitude=latitude , longitude= longitude , n  = 10 , db=db))
     
-    print(recommended_places)
-    print(nearby_places)
-    return await generate_tourPackage(recommended_places_ids=recommended_places,nearby_places_ids=nearby_places,db=db)                   
-    
+    return  generate_tourPackage(recommended_places_ids=recommended_places,nearby_places_ids=nearby_places,db=db)                   
+@app.get('/getTourPackage')
+def generate_tour (user_id: int, longitude:float , latitude:float, db: Session= Depends(get_db)):
+        list = get_tour_package(user_id,longitude,latitude,db)
+        places = []
+        for id in list:
+            place =  crud.getPlaceByID(db=db , id = id)
+            places.append(place)
+        return places
