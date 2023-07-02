@@ -552,3 +552,20 @@ def add_placetypeOfUser(userid:int,interest:schemas.userToPlaceTypeCreate, db:Se
     return db_placetypeToUser
 
     
+def show_pending_activities(db:Session):
+    pending_activities = db.query(models.Activity).filter(models.Activity.is_active == False).all()
+    return pending_activities
+
+
+def activity_response(activityid:int, response:bool, db:Session):
+    activity_db = db.query(models.Activity).filter(activityid == models.Activity.id).first()
+    if response:
+        activity_db.is_active = True
+        db.add(activity_db)
+        db.commit()
+        db.refresh(activity_db)
+        return {"Message": "Request is approved by admin"}
+    if not response :
+        db.delete(activity_db)
+        db.commit()
+        return {"Message": "Request is denied by admin"}
