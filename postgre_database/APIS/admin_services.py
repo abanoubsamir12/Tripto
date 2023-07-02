@@ -19,6 +19,6 @@ def get_db():
 async def pending_activities(db: Session= Depends(get_db)):
     return crud.show_pending_activities(db=db)
 
-app.post('/admin_AvtivityResponse')
+@app.post('/admin_AvtivityResponse')
 async def admin_activity_response(activityid:int, response:bool, db:Session = Depends(get_db)):
-    return crud.activity_response(activityid, response,db)
+    return crud.activity_response(activityid, response,db=db)

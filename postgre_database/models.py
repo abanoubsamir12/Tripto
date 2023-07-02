@@ -113,7 +113,7 @@ class Activity(Base):
     price = Column(Double)
     Time = Column(Integer)
     socialmedia = Column(String)
-    is_active = Column(Boolean)
+    is_active = Column(Boolean, default= False)
     
     
 
