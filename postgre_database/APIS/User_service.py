@@ -233,7 +233,7 @@ async def topRatedPlaces(db:Session = Depends(get_db)):
     return crud.getTopRatedPlaces(db)
 
 @app.post('/interestsOfNewUser')
-async def newUserInterests(userid:int, interests:list, db:Session = Depends(get_db)):
+async def newUserInterests(userid:int, interests:list[str], db:Session = Depends(get_db)):
     for interest in interests:
         placetype = db.query(models.PlaceType).filter_by(name=interest).first()
         db_placetypeToUser = models.userToPlaceType(
