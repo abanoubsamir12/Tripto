@@ -10,7 +10,7 @@ import sys
 from gtts import gTTS
 from itertools import islice
 from typing import Tuple
-from . import recommender_engine
+from . import recommendationEngine_services
 import random
 
 app = APIRouter()
@@ -182,7 +182,7 @@ async def generate_tourPackage(recommended_places_ids, nearby_places_ids, db: Se
 @app.get('/getTourPackage')
 async def get_tour_package(user_id: int, longitude:float , latitude:float, db: Session= Depends(get_db)):
         
-    recommended_places = await recommender_engine.getRecommendedPlaces(user_id, db=db)
+    recommended_places = await recommendationEngine_services.get_recommended_places(user_id, db=db)
     recommended_places = list(recommended_places)
     nearby_places =list( get_nearby_places(latitude=latitude , longitude= longitude , n  = 10 , db=db))
     

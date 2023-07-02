@@ -316,7 +316,7 @@ def getUserActivity(db:Session,userid:int):
         return {"message": "User not found."}
     user_places_viewed = db.query(models.SearchHistory).filter(userid == models.SearchHistory.user_id).all()
     if not user_places_viewed:
-        return {"message": "No search history found for the user."}
+        return []
     places_viewed=[]
     for x in user_places_viewed:
         places_viewed.append(x.place_id)
@@ -513,3 +513,19 @@ def deleteFavPlace(db: Session, placeid: int, userid:int):
     db.delete(data)
     db.commit()
     return data
+
+
+def get_users_ids(db:Session):
+    users_ids = db.query(models.User).all()
+    ids = []
+    for user in users_ids:
+        ids.append(user.id)
+    return ids
+
+def get_places_ids(db:Session):
+        places_ids = db.query(models.Place).all()
+        ids = []
+        for place in places_ids:
+            ids.append(place.id)
+        return ids 
+
