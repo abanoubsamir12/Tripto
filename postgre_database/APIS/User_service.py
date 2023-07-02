@@ -20,7 +20,7 @@ models.Base.metadata.create_all(bind=engine)
 
 app = APIRouter()
 
-
+blacklisted_tokens = set()
 
 SECRET_KEY = "thequickbrownfoxjumpsoverthelazydog"
 ALGORITHM = "HS256"
@@ -92,39 +92,60 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     return  {"access_token" : access_token , "token_type" : "bearer"}
 
 
-@app.get('/users/me', response_model = schemas.User)
-async def get_current_user(token: str = Depends(oauth2_scheme) , db: Session = Depends(get_db)):
+
+@app.get('/users/me', response_model=schemas.User)
+async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+    # Check if the token is in the set of invalid_tokens, indicating that the user has logged out
+    if token in blacklisted_tokens:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Logged out",
+            headers={"WWW-Authenticate": "Bearer"}
+        )
 
     try:
-        payload = jwt.decode(token , SECRET_KEY , algorithms = [ALGORITHM])
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username = payload.get("sub")
         if username is None:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="unauthorized user",
+                detail="Unauthorized user",
                 headers={"WWW-Authenticate": "Bearer"}
             )
         current_user = crud.getUserByUsername(db=db, username=username)
     except JWTError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="not valid token",
+            detail="Invalid token",
             headers={"WWW-Authenticate": "Bearer"}
         )
 
     if current_user is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Not User in the System",
+            detail="User not found in the system",
             headers={"WWW-Authenticate": "Bearer"}
         )
+
     return current_user
 
+
 @app.post("/logout")
-def logout(response: Response):
-    response.delete_cookie("access_token")
-    response.delete_cookie("refresh_token")
-    response.status_code = 200
+async def logout(token: str = Depends(oauth2_scheme)):
+    # Decode the token to get the username (sub) from the payload
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        username = payload.get("sub")
+    except JWTError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token",
+            headers={"WWW-Authenticate": "Bearer"}
+        )
+
+    # Invalidate the token by adding it to the set of invalid_tokens
+    blacklisted_tokens.add(token)
+    
     return {"message": "Logged out successfully"}
 
 
@@ -233,5 +254,4 @@ async def getSearchHistoryForUser(userid:int, db:Session = Depends(get_db)):
     for row in search_history:
         place = db.query(models.Place).filter(row.place_id == models.Place.id).first()
         places.append(place)
-    
     return places
