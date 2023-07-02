@@ -500,10 +500,19 @@ def addFavPlace(placeToUser: schemas.PlaceToUser, db:Session):
     db.refresh(db_placeToUser)
     return db_placeToUser
 
-def getFavPlaces(userid: int, db: Session) -> List[int]:
+def getFavPlacesID(userid: int, db: Session) -> List[int]:
     places_to_user = db.query(models.PlacesToUsers).filter(models.PlacesToUsers.userid == userid).all()
     places = [place.placeid for place in places_to_user]
     return places
+def getFavPlaces(userid: int, db: Session):
+    places_to_user = db.query(models.PlacesToUsers).filter(models.PlacesToUsers.userid == userid).all()
+    places = [place.placeid for place in places_to_user]
+    db_places = []
+    for id in places:
+        place =  getPlaceByID(db=db , id=id)
+        db_places.append(place)
+        
+    return db_places
 
 def deleteFavPlace(db: Session, placeid: int, userid:int):
     data = db.query(models.PlacesToUsers).filter_by(placeid=placeid , userid=userid).first()
