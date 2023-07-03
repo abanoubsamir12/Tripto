@@ -83,7 +83,8 @@ def CreateUser(db: Session , user: schemas.UserCreate):
         hashed_password = hashed_password,
         country = user.country,
         username = user.username,
-        role_id= user.role_id
+        role_id= user.role_id,
+        nationality = user.nationality
     )
     db.add(db_user)
     db.commit()
@@ -109,13 +110,14 @@ def getTypesByName(db: Session , name: str):
 
 def getPlacesByType(db: Session , TypeName: str):
     type = getTypesByName(db=db , name= TypeName)
-    print(type)
     type_id = type.id
     placesToTypes = db.query(models.PlaceToType).filter(type_id == models.PlaceToType.placeType_id).all()
     list= set()
     for x in placesToTypes:
         list.add(db.query(models.Place).filter(x.place_id == models.Place.id ).first())
     return list
+
+
 def getMonument(db: Session , place_id: int):
     monuments = db.query(models.Monument).filter(place_id == models.Monument.place_id).all()
     return monuments
@@ -568,3 +570,28 @@ def activity_response(activityid:int, response:bool, db:Session):
         db.delete(activity_db)
         db.commit()
         return {"Message": "Request is denied by admin"}
+    
+def get_nationality_interests (name: str , db:Session):
+    nationality_id = db.query(models.Nationality).filter(name == models.Nationality.nationality).first()
+    if not nationality_id:
+        return []
+    nationality_id = nationality_id.id
+    print("nationality id:",nationality_id)
+    interests = db.query(models.nationalityToPlacetype).filter(nationality_id == models.nationalityToPlacetype.nationality_id).all()
+    
+    nat_interests=[]
+    for i in interests:
+        nat_interests.append(i.PlaceType_id)
+        
+    return nat_interests
+    
+def get_user_interests (user_id:int , db: Session):
+    interests = db.query(models.userToPlaceType).filter(models.userToPlaceType.userid == user_id).all()
+    
+    user_interests =[]
+    for i in interests:
+        user_interests.append(i.placetypeid)
+    return user_interests
+
+
+

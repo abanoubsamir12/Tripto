@@ -8,6 +8,7 @@ class UserBase(BaseModel):
     country: str
     username: str
     role_id: int
+    nationality: str
 
 class UserCreate(UserBase):
     password: str
@@ -18,6 +19,7 @@ class UserCreate(UserBase):
 class User(UserBase):
     id: int
     is_active: bool
+    
 #    geolat: float
 #    geolng: float
 

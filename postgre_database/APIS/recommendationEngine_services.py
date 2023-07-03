@@ -16,7 +16,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 import io
 import requests 
 import csv
-import sys
+import random
 #sys.path.append('E:\college\graduation_project\Tripto-1\models')
 from AImodels.recommendation_system_1 import tfIDF ,recommenderEngine,userBasedCollaborativeModel
 #from ...AImodels import recommendation_system_1
@@ -58,14 +58,48 @@ def get_recommended_places(user_id: int,db: Session):
                                                 ,users_places_dict=users_places_dict ,n_recommendations=5)
     return recommended_places
 
+
+
+
+
+def nUser_recommendation_engine(user_id:int, nationality:str ,db: Session = Depends(get_db)):
+    
+    nationality_interests =  crud.get_nationality_interests(name=nationality , db= db)
+
+    user_interests = crud.get_user_interests(user_id=user_id , db=db)
+    
+    concatenated_list = list(set(nationality_interests + user_interests))
+    all_places = set()
+    for id in concatenated_list:
+        place_type = db.query(models.PlaceType).filter(models.PlaceType.id == id).first().name
+        places = crud.getPlacesByType(db=db,TypeName=place_type)
+        for place in places:
+            all_places.add(place)
+    my_list = list(all_places)
+
+    # Shuffle the list
+    random.shuffle(my_list)
+    
+    return my_list[:20]        
+    
+    
+    
+    
+    print(nationality_interests,"nat")
+    print(user_interests,"use")    
+
+
 @app.get('/recommendedP')
-async def get_recommended(user_id: int , db: Session = Depends(get_db)):
+async def get_recommended(user_id: int ,nationality:str ,db: Session = Depends(get_db)):
     
-    recommended_places = get_recommended_places(user_id=user_id , db=db)
-    places = []
-    for id in recommended_places:
-        place =  crud.getPlaceByID(db=db , id = id)
-        places.append(place)
-    return places
-    
+    if get_user_places_viewed(user_id=user_id,db=db):
+        
+        recommended_places = get_recommended_places(user_id=user_id , db=db)
+        places = []
+        for id in recommended_places:
+            place =  crud.getPlaceByID(db=db , id = id)
+            places.append(place)
+        return places
+    return nUser_recommendation_engine(user_id=user_id , nationality=nationality)
+        
 

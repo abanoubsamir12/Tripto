@@ -13,6 +13,7 @@ class User(Base):
     country = Column(String)
     username= Column(String, unique = True , index = True)
     role_id = Column(Integer , ForeignKey("roles.id"))
+    nationality = Column(String , ForeignKey("Nationality.nationality"))
     #geolat = Column(Float)
     #geolng = Column(Float)
 
