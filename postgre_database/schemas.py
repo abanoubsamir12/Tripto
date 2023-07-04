@@ -155,11 +155,8 @@ class PlaceBase(BaseModel):
     location: str
     longitude: float
     latitude: float
-    ticketPrice: float
-    estimatedDuration: float
-    class Config:
-        orm_mode = True
-
+    estimatedDuration:float
+    ticketPrice:float
 
 class PlaceCreate(PlaceBase):
     pass
@@ -172,9 +169,13 @@ class UserUpdate(UserBase):
     username: Optional[str] = None
     role_id: Optional[int] = None
     
+
 class userToPlaceTypeBase(BaseModel):
     userid:int
     placetypeid:int
+
+    class Config:
+        orm_mode = True
 
 class userToPlaceTypeCreate(userToPlaceTypeBase):
     pass
