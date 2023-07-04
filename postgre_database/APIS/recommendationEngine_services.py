@@ -62,11 +62,14 @@ def get_recommended_places(user_id: int,db: Session):
 
 
 
-def nUser_recommendation_engine(user_id:int, nationality:str ,db: Session = Depends(get_db)):
+def nUser_recommendation_engine(user_id:int, nationality:str ,db: Session):
     
     nationality_interests =  crud.get_nationality_interests(name=nationality , db= db)
 
     user_interests = crud.get_user_interests(user_id=user_id , db=db)
+    
+    if not nationality_interests and not user_interests:
+        return crud.getTopRatedPlaces(db=db)
     
     concatenated_list = list(set(nationality_interests + user_interests))
     all_places = set()
@@ -100,6 +103,6 @@ async def get_recommended(user_id: int ,nationality:str ,db: Session = Depends(g
             place =  crud.getPlaceByID(db=db , id = id)
             places.append(place)
         return places
-    return nUser_recommendation_engine(user_id=user_id , nationality=nationality)
+    return nUser_recommendation_engine(user_id=user_id , nationality=nationality,db=db)
         
 

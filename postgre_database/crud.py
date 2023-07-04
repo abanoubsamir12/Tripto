@@ -587,7 +587,8 @@ def get_nationality_interests (name: str , db:Session):
     
 def get_user_interests (user_id:int , db: Session):
     interests = db.query(models.userToPlaceType).filter(models.userToPlaceType.userid == user_id).all()
-    
+    if not interests:
+        return []
     user_interests =[]
     for i in interests:
         user_interests.append(i.placetypeid)
