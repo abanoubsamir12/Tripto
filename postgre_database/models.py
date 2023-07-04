@@ -42,6 +42,9 @@ class Place(Base):
     location = Column(String)
     longitude = Column(Float)
     latitude = Column(Float)
+    ticketPrice = Column(Float)
+    estimatedDuration = Column(Float)
+    
 
 class Monument(Base):
     __tablename__ = "monuments"

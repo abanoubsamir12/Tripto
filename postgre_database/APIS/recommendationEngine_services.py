@@ -1,21 +1,7 @@
-from typing import List, Tuple
 from fastapi import APIRouter, Depends
 from .. import crud , schemas,models
 from postgre_database.database import SessionLocal
 from sqlalchemy.orm import Session
-from ..models import Place, Activity
-from flask import request, jsonify
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import func
-from fastapi import Request
-import pandas as pd
-import numpy as np
-import chardet
-from sklearn.metrics.pairwise import cosine_similarity
-from sklearn.feature_extraction.text import TfidfVectorizer
-import io
-import requests 
-import csv
 import random
 #sys.path.append('E:\college\graduation_project\Tripto-1\models')
 from AImodels.recommendation_system_1 import tfIDF ,recommenderEngine,userBasedCollaborativeModel

@@ -20,7 +20,7 @@ def get_db():
 
 
 @app.post("/createPlace", response_model=PlaceBase)
-def create_place(place: PlaceCreate, db: Session = Depends(get_db)):
+def create_place(place: schemas.PlaceCreate, db: Session = Depends(get_db)):
     existing_place = db.query(Place).filter(Place.placeName == place.placeName).first()
     if existing_place:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Place with the same name already exists")
