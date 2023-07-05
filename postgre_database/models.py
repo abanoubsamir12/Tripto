@@ -112,7 +112,7 @@ class Activity(Base):
     place_id = Column(Integer , ForeignKey("places.id"))
     activityType_id=Column(Integer , ForeignKey("activityType.id"))
     location= Column(String)
-    image = Column(JSON)
+    image = Column(String)
     Phone = Column(String)
     price = Column(Double)
     Time = Column(Integer)

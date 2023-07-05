@@ -35,7 +35,7 @@ class ActivityBase(BaseModel):
     name: str
     description: str
     location: str
-    image: Union[list[str],str]
+    image: str
     
 
 class Activity(ActivityBase):
