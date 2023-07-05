@@ -1,20 +1,11 @@
 from itertools import chain
-from fastapi import HTTPException,status
-import pandas as pd
 from sqlalchemy import Text, desc, func
 from sqlalchemy.orm import Session
 from . import models , schemas 
 from passlib.context import CryptContext
 import json
-from gtts import gTTS
-import csv
-from sqlalchemy.exc import IntegrityError
 from typing import List
-ratings_csv_path = r'Datasets\Ratings.csv'
-user_places_csv_path = r'Datasets\user_places_viewed.csv'
 
-image_list = ["string1", "string2", "string3"]
-json_object = json.dumps(image_list)
 pwd_context = CryptContext(schemes = ["bcrypt"] , deprecated ="auto")
 
 def getUserByID(db: Session , user_id:int):
@@ -31,48 +22,6 @@ def get_hash_passowrd(password):
 
 
 # add user to ratings.csv
-def addUserToRatingsCSV(user_id: int):
-    # Read the existing contents of the file
-    with open(ratings_csv_path, 'r') as csvfile:
-        reader = csv.reader(csvfile)
-        rows = list(reader)
-
-    # Create a new row for the user with user_id as the first element and all other values as 0
-    new_row = [user_id] + [0] * (len(rows[0]) - 1)  # Subtract 1 to exclude the user_id column
-
-    # Insert the new row at the beginning of the rows list
-    rows.append(new_row)
-
-    # Write the modified contents back to the file
-    with open(ratings_csv_path, 'w', newline='') as csvfile:
-        writer = csv.writer(csvfile)
-        writer.writerows(rows)
-
-    return
-
-
-
-
-# add user to user_places_viewed.csv
-
-def addUserToUserPlacesViewed(user_id:int):
-    # Read the existing contents of the file
-    with open(user_places_csv_path, 'r') as csvfile:
-        reader = csv.reader(csvfile)
-        rows = list(reader)
-
-    # Create a new row for the user with user_id as the first element and all other values as 0
-    new_row = [user_id] + [0] * (len(rows[0]) - 1)  # Subtract 1 to exclude the user_id column
-
-    # Insert the new row at the beginning of the rows list
-    rows.append(new_row)
-
-    # Write the modified contents back to the file
-    with open(user_places_csv_path, 'w', newline='') as csvfile:
-        writer = csv.writer(csvfile)
-        writer.writerows(rows)
-
-    return
 
 
 def CreateUser(db: Session , user: schemas.UserCreate):
@@ -90,9 +39,7 @@ def CreateUser(db: Session , user: schemas.UserCreate):
     db.commit()
     db.refresh(db_user)
     new_user = getUserByUsername(username=db_user.username, db=db)
-    addUserToRatingsCSV(new_user.id)
-    addUserToUserPlacesViewed(new_user.id)
-    
+
     return  db_user
 
 
@@ -155,46 +102,8 @@ def CreateActivity(db: Session , activity: schemas.Activity):
 
 
 
-def addPlaceToRatingsFile(place_id:int):
-   # Read the existing contents of the file
-    with open(ratings_csv_path, 'r') as csvfile:
-        reader = csv.reader(csvfile)
-        rows = list(reader)
-
-    # Insert the place_id at the top-right corner of the header row
-    header = rows[0]
-    header.append(place_id)
-
-    for row in rows[1:]:
-        row.append(0)
-    # Write the modified contents back to the file
-    with open(ratings_csv_path, 'w', newline='') as csvfile:
-        writer = csv.writer(csvfile)
-        writer.writerows(rows)
-    return 
-
-
-def addPlaceToUserPlacesViewedFile(place_id:int):
-
-   # Read the existing contents of the file
-    with open(user_places_csv_path, 'r') as csvfile:
-        reader = csv.reader(csvfile)
-        rows = list(reader)
-  
-    # Insert the place_id at the top-right corner of the header row
-    header = rows[0]
-    header.append(place_id)
-
-    for row in rows[1:]:
-        row.append(0)
-    # Write the modified contents back to the file
-    with open(user_places_csv_path, 'w', newline='') as csvfile:
-        writer = csv.writer(csvfile)
-        writer.writerows(rows)
-    return 
 
 def createPlace(db:Session, place:schemas.PlaceCreate):
-   
     db_place = models.Place(
             placeName = place.placeName,
             description = place.description,
@@ -209,40 +118,9 @@ def createPlace(db:Session, place:schemas.PlaceCreate):
     db.add(db_place)
     db.commit()
     db.refresh(db_place)
-    
-    new_place = getPlaceByName(placeName=db_place.placeName, db=db)
-    
-    # Add the following code to write the data to the places file
-    csv_row = [
-        new_place.id,
-        new_place.placeName,
-        new_place.description,
-        new_place.address,
-        new_place.image,
-        new_place.rating,
-        new_place.location,
-        new_place.longitude,
-        new_place.latitude
-    ]
-    
-    with open('E:\college\graduation_project\Tripto-1\Datasets\places.csv', 'a', newline='') as csvfile:
-        writer = csv.writer(csvfile)
-        writer.writerow(csv_row)
+        
+    return place
 
-    addPlaceToUserPlacesViewedFile(new_place.id)
-    addPlaceToRatingsFile(new_place.id)
-    
-    return {
-        "id": db_place.id,
-        "placeName": db_place.placeName,
-        "description": db_place.description,
-        "address": db_place.address,
-        "image": db_place.image,
-        "rating": db_place.rating,
-        "location": db_place.location,
-        "longitude": db_place.longitude,
-        "latitude": db_place.latitude
-    }
 
 def getPlacesDes(db: Session):
     descriptions = []
@@ -255,42 +133,6 @@ def getPlacesDes(db: Session):
 def get_seachHistory(userid:int, placeid:int, db:Session):
     return db.query(models.SearchHistory).filter(userid == models.SearchHistory.user_id, placeid == models.SearchHistory.place_id).first()
 
-
-def addSearchHistoryToUserplacesCSV(userid: int, placeid: int):
-    # Read the CSV file and store its contents in a list
-    with open(user_places_csv_path, 'r') as file:
-        reader = csv.reader(file)
-        rows = list(reader)
-
-    # Find the index of the row with the matching userid
-    for index, row in enumerate(rows):
-        if row[0] == str(userid):
-            break
-    else:
-        # If the userid is not found, append a new row with userid and zeros
-        rows.append([str(userid)] + ['0'] * (len(rows[0]) - 1))
-        index = len(rows) - 1
-
-    # Find the index of the column header with the matching placeid
-    header_index = None
-    for i, cell in enumerate(rows[0]):
-        if cell == str(placeid):
-            header_index = i
-            break
-    else:
-        # If the placeid is not found, append a new column header with placeid
-        for row in rows:
-            row.append('0')
-        rows[0][-1] = str(placeid)
-        header_index = len(rows[0]) - 1
-
-    # Set the cell at the specified row and column to be 1
-    rows[index][header_index] = '1'
-
-    # Write the modified contents back to the CSV file
-    with open(user_places_csv_path, 'w', newline='') as file:
-        writer = csv.writer(file)
-        writer.writerows(rows)
 
 def deleteSearchHistory(db:Session, userSearchHistory:models.SearchHistory):
     db_searchHistory = db.query(models.SearchHistory).filter(
@@ -312,7 +154,6 @@ def addUserActivity(db:Session , userActivity: schemas.SearchHistoryCreate):
     db.commit()
     db.refresh(db_activity)
 
-    addSearchHistoryToUserplacesCSV(userid=db_activity.user_id, placeid=db_activity.place_id)
     return  db_activity
 
 
@@ -385,42 +226,6 @@ def getUserRatings(db:Session,userid:int):
     return ratings
 
    
-def addRatingToRatingCSV(userid: int, placeid: int, rate: float):
-    # Read the CSV file and store its contents in a list
-    with open(ratings_csv_path, 'r') as file:
-        reader = csv.reader(file)
-        rows = list(reader)
-
-    # Find the index of the row with the matching userid
-    for index, row in enumerate(rows):
-        if row[0] == str(userid):
-            break
-    else:
-        # If the userid is not found, append a new row with userid and zeros
-        rows.append([str(userid)] + ['0'] * (len(rows[0]) - 1))
-        index = len(rows) - 1
-
-    # Find the index of the column header with the matching placeid
-    header_index = None
-    for i, cell in enumerate(rows[0]):
-        if cell == str(placeid):
-            header_index = i
-            break
-    else:
-        # If the placeid is not found, append a new column header with placeid
-        for row in rows:
-            row.append('0')
-        rows[0][-1] = str(placeid)
-        header_index = len(rows[0]) - 1
-
-    # Set the cell at the specified row and column to be 1
-    rows[index][header_index] = str(rate)
-
-    # Write the modified contents back to the CSV file
-    with open(ratings_csv_path, 'w', newline='') as file:
-        writer = csv.writer(file)
-        writer.writerows(rows)
-
 
 def addUserRating(db:Session, user_rate:schemas.RatingCreate):
     db_userRate = models.Rating(
@@ -435,7 +240,6 @@ def addUserRating(db:Session, user_rate:schemas.RatingCreate):
     db.commit()
     db.refresh(db_userRate)
     
-    addRatingToRatingCSV(db_userRate.user_id, db_userRate.place_id,db_userRate.rate)
     return db_userRate
 
 def deleteRating(db:Session, user_rate:models.Rating):
