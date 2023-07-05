@@ -10,6 +10,19 @@ pwd_context = CryptContext(schemes = ["bcrypt"] , deprecated ="auto")
 
 def getUserByID(db: Session , user_id:int):
     return  db.query(models.User).filter(user_id == models.User.id).first()
+
+def changeUserRole(db:Session , user_id:int):
+    user = db.query(models.User).filter(user_id == models.User.id).first()
+    if not user:
+        return False
+    
+    user.role_id = 2
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    
+        
+    
 def getUserByEmail(db: Session , user_email:str):
     return  db.query(models.User).filter(user_email == models.User.email).first()
 
@@ -181,32 +194,8 @@ def getUsersForViewedPlace(db:Session, placeid:int):
         users.append(x.user_id)
     return users    
 
-# get all users who viewed at least one of my viwed places
-# if user_1 viewed {x} and user_2 viewed {c,d,x,z} , and user_3 = {b,c,w,e}
-# return all places of user_2 {c,d,x,z} and dont return places viewed of user 3
-def getUsersSimilarToUserViwedPlaces(userid:int, db:Session):
-    user_places_viewed =getUserActivity(db=db, userid=userid)
-    # get ids for users who have the similar user viewed places 
-    matchedUsers = []
-    for i in user_places_viewed:
-        usersForPlace = getUsersForViewedPlace(db=db, placeid=i)
-        matchedUsers.append(usersForPlace)
-    matchedUsers = list(chain.from_iterable(matchedUsers))  # Flatten the list of lists
-    matchedUsers = set(user for user in matchedUsers if user != userid)  # Remove the userid from the list 
-    return matchedUsers    
 
 
-def getViewedPlacesForMatchedUsers(userid:int, db:Session):
-    matchedUsers = getUsersSimilarToUserViwedPlaces(userid=userid,db=db)
-    AllviwedPlacesForMatchedUsers = []
-    for i in matchedUsers:
-        usersViewedPlaces =getUserActivity(db=db, userid=i)
-        AllviwedPlacesForMatchedUsers.append(usersViewedPlaces)
-    AllviwedPlacesForMatchedUsers = list(chain.from_iterable(AllviwedPlacesForMatchedUsers))  # Flatten the list of lists  
-    usersViewedPlaces =getUserActivity(db=db, userid=userid)
-    AllviwedPlacesForMatchedUsers = set(place for place in AllviwedPlacesForMatchedUsers if place not in usersViewedPlaces) # remove current user places from AllviwedPlacesForMatchedUsers
-    print(AllviwedPlacesForMatchedUsers)
-    return AllviwedPlacesForMatchedUsers
 
 
 def getUserRating(db:Session, userid:int, placeid:int):

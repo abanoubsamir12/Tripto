@@ -217,7 +217,9 @@ def delete_data_endpoint(placeid: int,userid:int, db: Session = Depends(get_db))
     return {"message": "place deleted successfully"}
 
 
-
+@app.get('/user/id')
+def get_user_byID(userid: int , db:Session = Depends(get_db)):
+    return crud.getUserByID(db=db , user_id=userid).role_id
 @app.put('/editUser/{userid}')
 async def editUser(userid: int, user: schemas.UserUpdate, db: Session = Depends(get_db)):
     user_db = crud.getUserByID(db, userid)

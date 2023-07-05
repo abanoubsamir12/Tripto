@@ -24,12 +24,6 @@ def get_db():
 async def add_activity(activity: schemas.Activity, id: int ,db: Session = Depends(get_db)):
     db_activity_id = crud.CreateActivity(db, activity)
     print(db_activity_id)
-    enterpreneur = crud.getUserByID(db=db, user_id=id)
-    if enterpreneur.role_id != 2:
-        raise HTTPException(
-            status_code=401,
-            detail="Not valid to add place"
-        )
     #obj = schemas.enterprenuerToActivity(activityID=db_activity_id , EnterprenuerID=id)
     return crud.assignActivityToEnterpreneur(db , id , db_activity_id)
     
