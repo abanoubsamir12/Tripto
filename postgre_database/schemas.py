@@ -44,7 +44,7 @@ class Activity(ActivityBase):
     price : float
     Time : int
     socialmedia :str
-    is_active : bool
+    #is_active : bool
 
     class Config:
         orm_mode = True

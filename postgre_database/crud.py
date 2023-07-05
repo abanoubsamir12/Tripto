@@ -143,6 +143,10 @@ def CreateActivity(db: Session , activity: schemas.Activity):
         ,image = json_object
         ,place_id = activity.place_id
         ,location = activity.location
+        ,Time = activity.Time
+        ,price = activity.price
+        ,Phone = activity.Phone
+        ,socialmedia = activity.socialmedia
     )
     db.add(db_activity)
     db.commit()
