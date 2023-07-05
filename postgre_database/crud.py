@@ -51,8 +51,6 @@ def CreateUser(db: Session , user: schemas.UserCreate):
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
-    new_user = getUserByUsername(username=db_user.username, db=db)
-
     return  db_user
 
 
