@@ -247,7 +247,11 @@ def getEnterpreneurActivities(enterpreneurid:int, db:Session):
         return {"message": "You do not have any activites"}
     activities=[]
     for x in enterpreneurActivities:
-        activities.append(x.activity_id)
+        activity = db.query(models.Activity).filter(models.Activity.id == x.activity_id).first()
+        if not activity:
+            continue
+        if activity.is_active:
+            activities.append(activity)
     return activities
 
 
