@@ -1,7 +1,7 @@
 from itertools import chain
 from sqlalchemy import Text, desc, func
 from sqlalchemy.orm import Session
-from . import models , schemas 
+import models , schemas 
 from passlib.context import CryptContext
 import json
 from typing import List
