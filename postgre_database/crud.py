@@ -256,7 +256,7 @@ def getEnterpreneurActivities(enterpreneurid:int, db:Session):
 
 
 def getActivitesForPlace(placeid:int, db:Session):
-    activities = db.query(models.Activity).filter(placeid == models.Activity.place_id).all()
+    activities = db.query(models.Activity).filter(placeid == models.Activity.place_id , models.Activity.is_active).all()
     return activities
 
 def updateUser(db: Session, user: models.User, user_update: schemas.UserUpdate):
