@@ -92,7 +92,6 @@ def assignActivityToEnterpreneur(db: Session ,enter_id:int , activity_id : int):
     return  db_assign
 
 
-
 def CreateActivity(db: Session , activity: schemas.Activity):
     json_object = json.dumps(activity.image)
     db_activity = models.Activity(
