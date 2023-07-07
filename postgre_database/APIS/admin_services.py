@@ -31,8 +31,16 @@ def delete_data_endpoint(activity_id:int, db: Session = Depends(get_db)):
 async def pending_activities(db: Session= Depends(get_db)):
     return crud.show_pending_activities(db=db)
 
+
+
+class ActivityResponse:
+    activityid:int
+    response:bool
+
 @app.post('/admin_AvtivityResponse')
-async def admin_activity_response(activityid:int ,response:bool, db:Session = Depends(get_db)):
+async def admin_activity_response(activity_response: ActivityResponse, db:Session = Depends(get_db)):
+    activityid = activity_response.activityid
+    response = activity_response.response
     activity = db.query(models.Activity).filter(activityid == models.Activity.id).first()
     userid = activity.enterpreneur_id
     if response:

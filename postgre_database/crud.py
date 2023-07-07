@@ -1,4 +1,5 @@
 from itertools import chain
+from rsa import DecryptionError
 from sqlalchemy import Text, desc, func
 from sqlalchemy.orm import Session
 from . import models , schemas 
@@ -112,7 +113,12 @@ def CreateActivity(db: Session , activity: schemas.Activity):
     return  db_activity.id
 
 
-
+def getPlacesNames(db:Session):
+    result = db.query(models.Place).all()
+    names = []
+    for place in result:
+        names.append(place.placeName)
+    return names
 
 def createPlace(db:Session, place:schemas.PlaceCreate):
     db_place = models.Place(

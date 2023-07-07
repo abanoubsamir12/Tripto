@@ -27,8 +27,18 @@ import pickle
 
 
 
+from postgre_database.database import SessionLocal, engine
+
 app = APIRouter()
 
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+        
 
 with open('AImodels\chatbot\words.pkl', 'rb') as f:
     words = pickle.load(f)
@@ -91,11 +101,50 @@ def chatbot_response(text , intents , model):
     ints = predict_class(text, model)
     res = getResponse(ints, intents)
     return res
+import re
+
+def convert_to_dict(locations_list):
+    locations_dict = {}
+
+    for location in locations_list:
+        variations = [location]  # Start with the location itself
+        words = location.split()  # Split the location into individual words
+
+        # Generate variations by removing one word at a time
+        for i in range(len(words)):
+            variation = " ".join(words[:i] + words[i+1:])
+            variations.append(variation)
+
+        locations_dict[location] = variations
+
+    return locations_dict
+
+def classify_words(word , db:Session):
+    
+    places_names = crud.getPlacesNames(db=db)
+    
+    locations = convert_to_dict(list(places_names))
+    classified_words = []
+    for location, keywords in locations.items():
+            for keyword in keywords:
+                # Use case-insensitive matching and word boundaries
+                pattern = r"\b{}\b".format(re.escape(keyword), re.IGNORECASE)
+                if re.search(pattern, word):
+                    classified_words.append(location)
+                    break  # Found a match, no need to continue searching
+            else:
+                continue  # No match found for this location
+            break  # Match found, move to the next word
+
+    return classified_words
+
 
 
 
 
 @app.get('/chatting')
-def get_chatbot_reponse(text:str):
+def get_chatbot_reponse(text:str,db:Session = Depends(get_db)):
+    classified = classify_words(text,db=db)
+    print(classified)
     response = chatbot_response(text=text , intents=intents , model=model)
     return response
