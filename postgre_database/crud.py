@@ -239,19 +239,7 @@ def deleteRating(db:Session, user_rate:models.Rating):
     return
 
 def getEnterpreneurActivities(enterpreneurid:int, db:Session):
-    enterpreneur = db.query(models.User).filter(models.User.id == enterpreneurid).first()
-    if not enterpreneur:
-        return {"message": "User not found."}
-    enterpreneurActivities = db.query(models.enterpreneurToActivity).filter(enterpreneurid == models.enterpreneurToActivity.enterprenuer_id).all()
-    if not enterpreneurActivities:
-        return {"message": "You do not have any activites"}
-    activities=[]
-    for x in enterpreneurActivities:
-        activity = db.query(models.Activity).filter(models.Activity.id == x.activity_id).first()
-        if not activity:
-            continue
-        if activity.is_active:
-            activities.append(activity)
+    activities = db.query(models.Activity).filter(models.Activity.enterpreneur_id == enterpreneurid).all()
     return activities
 
 
