@@ -299,6 +299,7 @@ def getFavPlacesID(userid: int, db: Session) -> List[int]:
     places_to_user = db.query(models.PlacesToUsers).filter(models.PlacesToUsers.userid == userid).all()
     places = [place.placeid for place in places_to_user]
     return places
+
 def getFavPlaces(userid: int, db: Session):
     places_to_user = db.query(models.PlacesToUsers).filter(models.PlacesToUsers.userid == userid).all()
     places = [place.placeid for place in places_to_user]

@@ -119,32 +119,20 @@ def convert_to_dict(locations_list):
 
     return locations_dict
 
-def classify_words(word , db:Session):
-    
+
+def classify_word(sentence , db:Session):
     places_names = crud.getPlacesNames(db=db)
-    print(places_names)
-    locations = convert_to_dict(list(places_names))
-    classified_words = []
-    for location, keywords in locations.items():
-            for keyword in keywords:
-                # Use case-insensitive matching and word boundaries
-                pattern = r"\b{}\b".format(re.escape(keyword), re.IGNORECASE)
-                if re.search(pattern, word):
-                    classified_words.append(location)
-                    break  # Found a match, no need to continue searching
-            else:
-                continue  # No match found for this location
-            break  # Match found, move to the next word
-
-    return classified_words
-
-
-
-
+    places_names_lower = [word.lower() for word in places_names]
+    classifications = convert_to_dict(list(places_names_lower))
+    output=[]
+    for classification, keywords in classifications.items():
+            if all(keyword in sentence.lower() for keyword in keywords):
+                output.append(classification)
+    return output
 
 @app.get('/chatting')
 def get_chatbot_reponse(text:str,db:Session = Depends(get_db)):
-    classified = classify_words(text,db=db)
+    classified = classify_word(text,db=db)
     print(classified)
-    response = chatbot_response(text=text , intents=intents , model=model)
-    return response
+    #response = chatbot_response(text=text , intents=intents , model=model)
+    return classified
