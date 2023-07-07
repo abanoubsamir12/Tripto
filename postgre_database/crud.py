@@ -396,3 +396,16 @@ def get_user_interests (user_id:int , db: Session):
 
 
 
+def addNewInterests(userid:int, interests:list, db:Session):
+    try:
+        for x in interests:
+            placetype = db.query(models.PlaceType).filter(models.PlaceType.name == x).first()
+            db_placetypeToUser = models.userToPlaceType(
+            placetypeid=placetype.id,
+            userid=userid   
+            )
+            db.add(db_placetypeToUser)
+        db.commit()
+    finally:
+        db.close()
+    return {"message" : "rows added successfully"}

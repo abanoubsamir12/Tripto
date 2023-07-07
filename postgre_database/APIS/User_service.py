@@ -236,16 +236,8 @@ async def topRatedPlaces(db:Session = Depends(get_db)):
 
 @app.post('/interestsOfNewUser')
 async def newUserInterests(userid:int, interests:list, db:Session = Depends(get_db)):
-    for interest in interests:
-        placetype = db.query(models.PlaceType).filter_by(name=interest).first()
-        db_placetypeToUser = models.userToPlaceType(
-            placetypeid=placetype.id,
-            userid=userid   
-        )
-        db.add(db_placetypeToUser)
-        db.commit()
-        db.refresh(db_placetypeToUser)
-    return {"message": "Interests added successfully"}
+    return crud.addNewInterests(userid=userid,interests=interests,db=db)
+
 
 @app.get('/getSearchHistoryForUser')
 async def getSearchHistoryForUser(userid:int, db:Session = Depends(get_db)):
