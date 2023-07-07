@@ -311,7 +311,15 @@ def deleteFavPlace(db: Session, placeid: int, userid:int):
     db.delete(data)
     db.commit()
     return data
+def deleteActivity(db: Session, activity_id:int):
+    data = db.query(models.Activity).filter(models.Activity.id == activity_id).first()
+    if not data:
+        return None
 
+    db.delete(data)
+    db.commit()
+    return data
+    
 
 def get_users_ids(db:Session):
     users_ids = db.query(models.User).all()
@@ -396,3 +404,7 @@ def addNewInterests(userid:int, interests:list, db:Session):
     finally:
         db.close()
     return {"message" : "rows added successfully"}
+
+def getAllActivities(db:Session):
+    activities = db.query(models.Activity).all()
+    return activities

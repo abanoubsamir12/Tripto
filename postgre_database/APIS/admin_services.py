@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException,status
 from postgre_database import models , schemas , crud, database
 from postgre_database.database import SessionLocal
 from sqlalchemy.orm import Session
@@ -13,7 +13,19 @@ def get_db():
         yield db
     finally:
         db.close()
-
+@app.get('/allActivities')
+async def all_activites(db:Session= Depends(get_db)):
+    return crud.getAllActivities(db=db)
+    
+@app.delete("/deleteActivity/{activity_id}")
+def delete_data_endpoint(activity_id:int, db: Session = Depends(get_db)):
+    deleted_data = crud.deleteActivity(db=db,activity_id=activity_id)
+    if not deleted_data:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Data not found",
+        )
+    return {"message": "activity deleted successfully"}
 
 @app.get('/pendingActivities')
 async def pending_activities(db: Session= Depends(get_db)):
