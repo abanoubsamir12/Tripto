@@ -97,42 +97,28 @@ def getResponse(ints, intents_json):
             break
     return result
 
-def chatbot_response(text , intents , model):
-    ints = predict_class(text, model)
-    res = getResponse(ints, intents)
-    return res
 import re
+from collections import Counter
 
-def convert_to_dict(locations_list):
-    locations_dict = {}
+def preprocess_sentence(sentence):
+    # Remove special characters and convert to lowercase
+    sentence = re.sub(r"[^\w\s]", "", sentence.lower())
+    return sentence
 
-    for location in locations_list:
-        variations = [location]  # Start with the location itself
-        words = location.split()  # Split the location into individual words
+def classify_word(sentence, places_names):
+    sentence = preprocess_sentence(sentence)
+    word_counts = Counter(sentence.split())
 
-        # Generate variations by removing one word at a time
-        for i in range(len(words)):
-            variation = " ".join(words[:i] + words[i+1:])
-            variations.append(variation)
+    # Find the most common place name in the sentence
+    most_common_place = max(places_names, key=lambda place: word_counts.get(place.lower(), 0))
 
-        locations_dict[location] = variations
+    return most_common_place
 
-    return locations_dict
-
-
-def classify_word(sentence , db:Session):
-    places_names = crud.getPlacesNames(db=db)
-    places_names_lower = [word.lower() for word in places_names]
-    classifications = convert_to_dict(list(places_names_lower))
-    output=[]
-    for classification, keywords in classifications.items():
-            if all(keyword in sentence.lower() for keyword in keywords):
-                output.append(classification)
-    return output
 
 @app.get('/chatting')
 def get_chatbot_reponse(text:str,db:Session = Depends(get_db)):
-    classified = classify_word(text,db=db)
-    print(classified)
+    places_names = crud.getPlacesNames(db=db)
+    classified = classify_word(sentence=text,places_names=places_names)
+    print (classified)
     #response = chatbot_response(text=text , intents=intents , model=model)
     return classified

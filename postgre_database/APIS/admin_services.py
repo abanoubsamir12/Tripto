@@ -52,6 +52,5 @@ async def admin_activity_response(activity_response: ActivityResponse, db:Sessio
         user = crud.getUserByID(user_id=userid , db=db)
         if user:
             crud.changeUserRole(db=db,user_id=userid)
-    else:
-        return False
+    
     return crud.activity_response(activityid, response,db=db)
