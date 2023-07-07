@@ -36,6 +36,7 @@ class ActivityBase(BaseModel):
     description: str
     location: str
     image: str
+    enterpreneur_id: int
     
 
 class Activity(ActivityBase):
