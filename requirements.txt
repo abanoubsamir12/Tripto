@@ -6,3 +6,5 @@ python-jose[cryptography]
 passlib[bcrypt]
 SQLAlchemy
 psycopg2
+gunicorn 
+requests
