@@ -22,8 +22,15 @@ def get_hash_passowrd(password):
     return  pwd_context.hash(password)
 
 
-# add user to ratings.csv
-
+def changeUserRole(db:Session , user_id:int):
+    user = db.query(models.User).filter(user_id == models.User.id).first()
+    if not user:
+        return False
+    
+    user.role_id = 2
+    db.add(user)
+    db.commit()
+    db.refresh(user)
 
 def CreateUser(db: Session , user: schemas.UserCreate):
     hashed_password = get_hash_passowrd(user.password)
@@ -124,3 +131,33 @@ def deleteRating(db:Session, user_rate:models.Rating):
     db.delete(db_userRate)
     db.commit()
     return
+
+def updateUser(db: Session, user: models.User, user_update: schemas.UserUpdate):
+    # Update the user attributes with the provided data
+    
+    if user_update.password:
+        user.hashed_password = get_hash_passowrd(user_update.password)
+    if user_update.email:
+        user.email = user_update.email
+    if user_update.age:
+        user.age = user_update.age
+    if user_update.country:
+        user.country = user_update.country
+    if user_update.username:
+        user.username = user_update.username
+    if user_update.role_id:
+        user.role_id = user_update.role_id
+
+    # Save the changes to the database
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+
+    return user
+
+def get_users_ids(db:Session):
+    users_ids = db.query(models.User).all()
+    ids = []
+    for user in users_ids:
+        ids.append(user.id)
+    return ids
