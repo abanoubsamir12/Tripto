@@ -402,6 +402,8 @@ def addNewInterests(userid:int, interests:list, db:Session):
     try:
         for x in interests:
             placetype = db.query(models.PlaceType).filter(models.PlaceType.name == x).first()
+            if not placetype:
+                continue
             db_placetypeToUser = models.userToPlaceType(
             placetypeid=placetype.id,
             userid=userid   
