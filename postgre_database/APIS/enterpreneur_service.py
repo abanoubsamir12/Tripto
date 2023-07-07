@@ -21,7 +21,7 @@ def get_db():
 #    return  crud.assignActivityToEnterpreneur(db , activityToEnter)
     
 @app.post('/addActivity')
-async def add_activity(activity: schemas.Activity, id: int ,db: Session = Depends(get_db)):
+async def add_activity(activity: schemas.Activity ,db: Session = Depends(get_db)):
     return crud.CreateActivity(db, activity)
     
     
