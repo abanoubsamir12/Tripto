@@ -84,11 +84,11 @@ async def get_recommended(user_id: int ,nationality:str ,db: Session = Depends(g
     if get_user_places_viewed(user_id=user_id,db=db):
         
         recommended_places = get_recommended_places(user_id=user_id , db=db)
-        places = []
+        places = set()
         for id in recommended_places:
             place =  crud.getPlaceByID(db=db , id = id)
-            places.append(place)
+            places.add(place)
         return places
-    return nUser_recommendation_engine(user_id=user_id , nationality=nationality,db=db)
+    return set(nUser_recommendation_engine(user_id=user_id , nationality=nationality,db=db))
         
 

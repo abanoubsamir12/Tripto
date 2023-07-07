@@ -20,7 +20,9 @@ async def pending_activities(db: Session= Depends(get_db)):
     return crud.show_pending_activities(db=db)
 
 @app.post('/admin_AvtivityResponse')
-async def admin_activity_response(activityid:int,userid:int ,response:bool, db:Session = Depends(get_db)):
+async def admin_activity_response(activityid:int ,response:bool, db:Session = Depends(get_db)):
+    activity = db.query(models.Activity).filter(activityid == models.Activity.id).first()
+    userid = activity.enterpreneur_id
     if response:
         user = crud.getUserByID(user_id=userid , db=db)
         if user:

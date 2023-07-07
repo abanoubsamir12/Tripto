@@ -118,7 +118,7 @@ class Activity(Base):
     Time = Column(Integer)
     socialmedia = Column(String)
     is_active = Column(Boolean, default= False)
-    
+    enterpreneur_id = Column(Integer , ForeignKey("users.id"))
     
 
 class enterpreneurToActivity(Base):

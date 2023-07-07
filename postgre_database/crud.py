@@ -105,6 +105,7 @@ def CreateActivity(db: Session , activity: schemas.Activity):
         ,price = activity.price
         ,Phone = activity.Phone
         ,socialmedia = activity.socialmedia
+        ,enterpreneur_id = activity.enterpreneur_id
     )
     db.add(db_activity)
     db.commit()
