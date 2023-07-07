@@ -122,7 +122,7 @@ def convert_to_dict(locations_list):
 def classify_words(word , db:Session):
     
     places_names = crud.getPlacesNames(db=db)
-    
+    print(places_names)
     locations = convert_to_dict(list(places_names))
     classified_words = []
     for location, keywords in locations.items():

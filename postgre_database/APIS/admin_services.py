@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException,status
 from postgre_database import models , schemas , crud, database
 from postgre_database.database import SessionLocal
 from sqlalchemy.orm import Session
-
+from pydantic import BaseModel
 
 app = APIRouter()
 
@@ -33,12 +33,17 @@ async def pending_activities(db: Session= Depends(get_db)):
 
 
 
-class ActivityResponse:
+class ActivityResponse(BaseModel):
     activityid:int
     response:bool
 
 @app.post('/admin_AvtivityResponse')
 async def admin_activity_response(activity_response: ActivityResponse, db:Session = Depends(get_db)):
+    if not activity_response:
+        raise HTTPException(
+            status_code= 404,
+            detail="not found"
+        )
     activityid = activity_response.activityid
     response = activity_response.response
     activity = db.query(models.Activity).filter(activityid == models.Activity.id).first()
