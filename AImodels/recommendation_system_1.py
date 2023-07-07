@@ -59,10 +59,6 @@ def contentBasedModel (tfidf_scores,userid,places_viewed,n_recommendations=5  ):
   return set(np.unique(np.concatenate(similarities_places_viewed)).tolist())
 
 
-
-
-
-
 def userBasedCollaborativeModel(user_id,user_ids,user_places_viewed,n_recommendations=7):
     map = {}
     i=0
