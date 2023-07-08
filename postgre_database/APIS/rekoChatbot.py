@@ -5,8 +5,8 @@ from transformers import AutoModel, AutoTokenizer
 from transformers import DistilBertTokenizer
 from transformers import TFDistilBertForSequenceClassification
 
-loaded_tokenizer = DistilBertTokenizer.from_pretrained('/content/saved_models')
-loaded_model = TFDistilBertForSequenceClassification
+#loaded_tokenizer = DistilBertTokenizer.from_pretrained('/content/saved_models')
+#loaded_model = TFDistilBertForSequenceClassification
 
 import difflib
 from fastapi import APIRouter, Depends
@@ -18,6 +18,7 @@ import random
 from AImodels.recommendation_system_1 import tfIDF ,recommenderEngine,userBasedCollaborativeModel
 #from ...AImodels import recommendation_system_1
 app = APIRouter()
+
 def get_db():
     db = SessionLocal()
     try:
