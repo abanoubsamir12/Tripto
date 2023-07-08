@@ -8,6 +8,8 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import func
 from fastapi import Request
 from fastapi import APIRouter, Depends, Request
+from fuzzywuzzy import fuzz
+from fuzzywuzzy import process
 
 # from fuzzywuzzy import fuzz
 # from fuzzywuzzy import process

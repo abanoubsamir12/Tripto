@@ -232,8 +232,7 @@ def addUserRating(db:Session, user_rate:schemas.RatingCreate):
 def deleteRating(db:Session, user_rate:models.Rating):
     db_userRate = db.query(models.Rating).filter(
         user_rate.user_id == models.Rating.user_id,
-        user_rate.place_id == models.Rating.place_id,
-        user_rate.rate == models.Rating.rate).first()
+        user_rate.place_id == models.Rating.place_id).first()
     db.delete(db_userRate)
     db.commit()
     return
