@@ -55,11 +55,15 @@ def get_recommended_places(user_id: int,db: Session):
 def nUser_recommendation_engine(user_id:int, nationality:str ,db: Session):
     
     nationality_interests =  crud.get_nationality_interests(name=nationality , db= db)
-
+    if not nationality_interests:
+        nationality_interests = None
     user_interests = crud.get_user_interests(user_id=user_id , db=db)
-    
-    if not nationality_interests and not user_interests:
-        return crud.getTopRatedPlaces(db=db)
+    if not user_interests :
+        user_interests = None
+    if (not nationality_interests) and (not user_interests):
+        my_places = crud.getTopRatedPlaces(db=db)
+        random.shuffle(my_places)
+        return my_places
     
     concatenated_list = list(set(nationality_interests + user_interests))
     all_places = set()
@@ -84,7 +88,9 @@ def nUser_recommendation_engine(user_id:int, nationality:str ,db: Session):
 
 @app.get('/recommendedP')
 async def get_recommended(user_id: int ,nationality:str ,db: Session = Depends(get_db)):
-    
+    user = crud.getUserByID(db=db , user_id= user_id)
+    if not user:
+        return {"message" : "not found user"}
     if get_user_places_viewed(user_id=user_id,db=db):
         
         recommended_places = get_recommended_places(user_id=user_id , db=db)

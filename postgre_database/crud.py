@@ -40,16 +40,20 @@ def get_hash_passowrd(password):
 
 def CreateUser(db: Session , user: schemas.UserCreate):
     hashed_password = get_hash_passowrd(user.password)
-    db_user = models.User(
-        email = user.email,
-        age = user.age,
-        hashed_password = hashed_password,
-        country = user.country,
-        username = user.username,
-        role_id= user.role_id,
-        nationality = user.nationality
-    )
-    db.add(db_user)
+    try:
+        db_user = models.User(
+            email = user.email,
+            age = user.age,
+            hashed_password = hashed_password,
+            country = user.country,
+            username = user.username,
+            role_id= user.role_id,
+            nationality = user.nationality
+        )
+        db.add(db_user)
+    except :
+        return "please change role_id or nationality or both to match with db"
+    
     db.commit()
     db.refresh(db_user)
     return  db_user
@@ -373,7 +377,8 @@ def get_nationality_interests (name: str , db:Session):
     nationality_id = nationality_id.id
     print("nationality id:",nationality_id)
     interests = db.query(models.nationalityToPlacetype).filter(nationality_id == models.nationalityToPlacetype.nationality_id).all()
-    
+    if not interests:
+        return []
     nat_interests=[]
     for i in interests:
         nat_interests.append(i.PlaceType_id)

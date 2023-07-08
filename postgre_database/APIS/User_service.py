@@ -2,6 +2,7 @@ import datetime
 
 from pydantic import BaseModel
 from fastapi import APIRouter , Body , Cookie , Header , Depends,status, HTTPException,Response
+from fastapi.responses import RedirectResponse
 from uvicorn import run
 from datetime import  timedelta , datetime , date
 from sqlalchemy.orm import Session
@@ -136,12 +137,15 @@ async def logout(token: str = Depends(oauth2_scheme)):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username = payload.get("sub")
+        response = RedirectResponse(url="/login")
+        response.delete_cookie(key="access_token")
     except JWTError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid token",
             headers={"WWW-Authenticate": "Bearer"}
         )
+    
 
     # Invalidate the token by adding it to the set of invalid_tokens
     blacklisted_tokens.add(token)
