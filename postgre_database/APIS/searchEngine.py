@@ -59,7 +59,7 @@ def search_place(request: Request, db: Session = Depends(get_db)):
 
     places = [
         {
-            'placeID': place.id,
+            'id': place.id,
             'placeName': place.placeName,
             'description': place.description,
             'address': place.address,

@@ -1,12 +1,17 @@
+
+from pyexpat import model
+import tokenize
 import torch
 import torch.nn as nn
 
 from transformers import AutoModel, AutoTokenizer
 from transformers import DistilBertTokenizer
 from transformers import TFDistilBertForSequenceClassification
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+max_seq_len = 8
 
-#loaded_tokenizer = DistilBertTokenizer.from_pretrained('/content/saved_models')
-#loaded_model = TFDistilBertForSequenceClassification
+loaded_tokenizer = DistilBertTokenizer.from_pretrained('/content/saved_models')
+loaded_model = TFDistilBertForSequenceClassification
 
 import difflib
 from fastapi import APIRouter, Depends
@@ -17,6 +22,9 @@ import random
 #sys.path.append('E:\college\graduation_project\Tripto-1\models')
 from AImodels.recommendation_system_1 import tfIDF ,recommenderEngine,userBasedCollaborativeModel
 #from ...AImodels import recommendation_system_1
+
+
+
 app = APIRouter()
 
 def get_db():
@@ -29,44 +37,62 @@ def get_db():
 def get_places_category(cat:str,db:Session = Depends(get_db)):
     return crud.getPlacesByType(db=db,TypeName=cat)
 
+import re
+
+def preprocess_text(text):
+    text = re.sub(r'[^a-zA-Z ]+', '', text)
+    text = text.lower()
+    return text
+
+def get_prediction(text, model, tokenizer, device, max_seq_len):
+    text = preprocess_text(text)
+    test_text = [text]
+    model.eval()
+
+    tokens_test_data = tokenizer(
+        test_text,
+        max_length=max_seq_len,
+        pad_to_max_length=True,
+        truncation=True,
+        return_token_type_ids=False
+    )
+
+def get_response(message, data, model, tokenizer, le, device, max_seq_len):
+    intent = get_prediction(message, model, tokenizer, device, max_seq_len)
+    result = ""
+
+    # Check if the message matches a specific pattern in intents
+    for i in data['intents']:
+        for pattern in i["patterns"]:
+            if difflib.SequenceMatcher(None, message, pattern).ratio() > 0.8:
+                result = random.choice(i["responses"])
+                break
+        if result:
+            break
+
+    if not result:
+        for i in data['intents']:
+            if i["tag"] == intent:
+                result = random.choice(i["responses"])
+                break
+
+    if not result:
+        result = "I'm sorry, I didn't understand your question."
+    return f"Intent: {intent}\nResponse: {result}"
 
 
-# def get_response(message, data, model, tokenizer, le, device, max_seq_len):
-#     intent = get_prediction(message, model, tokenizer, device, max_seq_len)
-#     result = ""
+import json
 
-#     # Check if the message matches a specific pattern in intents
-#     for i in data['intents']:
-#         for pattern in i["patterns"]:
-#             if difflib.SequenceMatcher(None, message, pattern).ratio() > 0.8:
-#                 result = random.choice(i["responses"])
-#                 break
-#         if result:
-#             break
+# Load intent data from JSON file
+with open("intents.json", "r") as f:
+    data = json.load(f)
 
-#     if not result:
-#         for i in data['intents']:
-#             if i["tag"] == intent:
-#                 result = random.choice(i["responses"])
-#                 break
-
-#     if not result:
-#         result = "I'm sorry, I didn't understand your question."
-#     return f"Intent: {intent}\nResponse: {result}"
-
-
-# import json
-
-# # Load intent data from JSON file
-# with open("intents.json", "r") as f:
-#     data = json.load(f)
-
-# while True:
-#   message =  input("User: ")
-#   if message=="exit":
-#       break
-#   response = get_response(message, data, model, tokenizer, le, device, max_seq_len)
-#   print(response)
+while True:
+  message =  input("User: ")
+  if message=="exit":
+      break
+  response = get_response(message, data, loaded_model, loaded_tokenizer, le, device, max_seq_len)
+  print(response)
 
 def get_places_category(cat:str,db:Session = Depends(get_db)):
     return crud.getPlacesByType(db=db,TypeName=cat)

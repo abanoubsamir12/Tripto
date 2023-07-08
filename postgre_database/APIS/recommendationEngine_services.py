@@ -6,6 +6,10 @@ import random
 #sys.path.append('E:\college\graduation_project\Tripto-1\models')
 from AImodels.recommendation_system_1 import tfIDF ,recommenderEngine,userBasedCollaborativeModel
 #from ...AImodels import recommendation_system_1
+# Converting the labels into encodings
+from sklearn.preprocessing import LabelEncoder
+le = LabelEncoder()
+
 app = APIRouter()
 
 def get_db():
