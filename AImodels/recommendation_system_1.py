@@ -47,17 +47,16 @@ def getUserActivity(userid:int,  db: Session):
 
 
 def contentBasedModel (tfidf_scores,userid,places_viewed,n_recommendations=5  ):
-  cosine_similarities = cosine_similarity(tfidf_scores)
+    cosine_similarities = cosine_similarity(tfidf_scores)
 
-  # define the index of the place to get recommendations for
-  similarities_places_viewed=[]
-  for place_viewed in places_viewed:
-    # get the cosine similarities between the place and all other places
-    similarities = cosine_similarities[place_viewed-1]
-    top_indices = similarities.argsort()[-n_recommendations:-1]
-    similarities_places_viewed.append(top_indices+1)
-  return set(np.unique(np.concatenate(similarities_places_viewed)).tolist())
-
+    # define the index of the place to get recommendations for
+    similarities_places_viewed=[]
+    for place_viewed in places_viewed:
+        # get the cosine similarities between the place and all other places
+        similarities = cosine_similarities[place_viewed-1]
+        top_indices = similarities.argsort()[-n_recommendations:-1]
+        similarities_places_viewed.append(top_indices+1)
+    return set(np.unique(np.concatenate(similarities_places_viewed)).tolist())
 
 def userBasedCollaborativeModel(user_id,user_ids,user_places_viewed,n_recommendations=7):
     map = {}
@@ -76,7 +75,6 @@ def userBasedCollaborativeModel(user_id,user_ids,user_places_viewed,n_recommenda
         for item in items:
             row[item - 1] = 1  # Mark item as viewed
         matrix.append(row)
-        
     # Calculate cosine similarity
     similarity_matrix = cosine_similarity(matrix)
 
@@ -94,9 +92,7 @@ def userBasedCollaborativeModel(user_id,user_ids,user_places_viewed,n_recommenda
                 recommendations.append(place_id)
         if len(recommendations) >= n_recommendations:  
             break
-    
-    recommendations =  list(set(recommendations) - set(specific_user_places))[:n_recommendations]
-    
+    recommendations =  list(set(recommendations) - set(specific_user_places))[:n_recommendations]    
     return set(recommendations)
             
 
