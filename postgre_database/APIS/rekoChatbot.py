@@ -98,7 +98,7 @@ def get_response(message, data, model, tokenizer, le, device, max_seq_len):
 
 
 @app.get("/chatReco")
-def handle_intent(user_message:str, intent:str):
+def handle_intent(user_message:str, intent:str, db:Session = Depends(get_db)):
     if intent == 'greeting':
         # Handle greeting intent
         #hyro7 ygeb ay response mn greetings bto3 intents.json
@@ -110,16 +110,14 @@ def handle_intent(user_message:str, intent:str):
         response = "Goodbye! Have a great day!"
 
     elif intent == 'category':
-        print("entered")
-        category=extract_category(user_message)
-        print(category)
-        return get_places_category(category)
         
-        #extract_category
-
-        #getPlaces
-
-        response = "You're welcome! It was my pleasure to help."
+        
+        category=classify_message(user_message)
+        places = list(crud.getPlacesByType(db=db,TypeName=category))        
+        response = "you can visit many places like : "
+        for place in places:
+            response += place.placeName
+            response += ", "
     
     elif intent == "description":
         print("here")
@@ -164,9 +162,6 @@ def handle_intent(user_message:str, intent:str):
     return response
 
 
-@app.get("/gePlacesCategory")
-def get_places_category(cat:str,db:Session = Depends(get_db)):
-    return crud.getPlacesByType(TypeName=cat,db=db)
 
 
 

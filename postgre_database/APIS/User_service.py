@@ -244,3 +244,7 @@ async def getSearchHistoryForUser(userid:int, db:Session = Depends(get_db)):
         places.append(place)
     reversed_places = list(reversed(places))
     return reversed_places
+
+@app.get('/getRatedPlaces')
+async def getRatedPlaces(user_id: int , db:Session = Depends(get_db)):
+    return crud.get_ratings_for_user(user_id=user_id , db=db)

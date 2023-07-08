@@ -63,14 +63,9 @@ def getPlaceByName(db:Session, placeName:str):
 def getPlaceByID(db: Session, id:int):
     return db.query(models.Place).filter(id == models.Place.id).first()
 
-def getTypesByName(db: Session , name: str):
-    return  db.query(models.PlaceType).filter( name == models.PlaceType.name ).first()
-
-
 def getPlacesByType(db: Session , TypeName: str):
-    type = getTypesByName(db=db , name= TypeName)
+    type = db.query(models.PlaceType).filter( TypeName == models.PlaceType.name ).first()
     type_id = type.id
-    print(type_id)
     placesToTypes = db.query(models.PlaceToType).filter(type_id == models.PlaceToType.placeType_id).all()
     list= set()
     for x in placesToTypes:
@@ -218,8 +213,6 @@ def getUserRatings(db:Session,userid:int):
     for x in user_ratings:
         ratings.append(x.rate)
     return ratings
-
-   
 
 def addUserRating(db:Session, user_rate:schemas.RatingCreate):
     db_userRate = models.Rating(
@@ -418,3 +411,11 @@ def addNewInterests(userid:int, interests:list, db:Session):
 def getAllActivities(db:Session):
     activities = db.query(models.Activity).all()
     return activities
+
+
+def get_ratings_for_user(user_id:int , db:Session):
+    ratings = db.query(models.Rating).filter(models.Rating.user_id == user_id).all()
+    db.close()
+    return ratings
+
+
