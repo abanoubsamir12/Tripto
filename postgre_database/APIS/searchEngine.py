@@ -33,13 +33,13 @@ def search_place(request: Request, db: Session = Depends(get_db)):
     # Perform the search query using SQLAlchemy
     place_results = db.query(Place).filter(
         func.lower(Place.placeName).like(f'%{search_query.lower()}%') |
-        func.lower(Place.description).like(f'%{search_query.lower()}%') |
+        # func.lower(Place.description).like(f'%{search_query.lower()}%') |
         func.lower(Place.address).like(f'%{search_query.lower()}%')
     ).all()
     
     activity_results = db.query(Activity).filter(
         func.lower(Activity.name).like(f'%{search_query.lower()}%') |
-        func.lower(Activity.description).like(f'%{search_query.lower()}%') |
+        # func.lower(Activity.description).like(f'%{search_query.lower()}%') |
         func.lower(Activity.location).like(f'%{search_query.lower()}%')
     ).all()
     # place_ratios = process.extract(search_query, [place.placeName for place in place_results])
