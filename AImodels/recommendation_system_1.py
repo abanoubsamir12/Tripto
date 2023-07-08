@@ -102,24 +102,24 @@ def userBasedCollaborativeModel(user_id,user_ids,user_places_viewed,n_recommenda
 
 
 def recommenderEngine(tfidf_scores,userid,user_places_viewed,users_places_dict,user_ids,n_recommendations=5):
-  contentBasedModelResults=contentBasedModel(tfidf_scores,userid,user_places_viewed,n_recommendations=5)
-  itemBasedCallobrativeModelResults=userBasedCollaborativeModel(userid, user_ids,users_places_dict, n_recommendations=5)
-  print(contentBasedModelResults)
-  print(itemBasedCallobrativeModelResults)
-  #topRatedPlacesModelResults=topRatedPlacesModel(user_id,ratings)
-  # Concatenate the results
-  concatenated_places = contentBasedModelResults | itemBasedCallobrativeModelResults
-  # Create a dictionary to store frequency count
-  frequency_count = {}
-  # Update frequency count for each place
-  for place in concatenated_places:
-    frequency_count[place] = frequency_count.get(place, 0) + 1
-  # Sort the places based on frequency count
-  sorted_places = sorted(concatenated_places, key=lambda x: frequency_count[x], reverse=True)
-  # Convert the sorted places to a numpy array
-  sorted_places = np.array(sorted_places).tolist()
-  distinct_list = []
-  for item in sorted_places:
-    if item not in distinct_list:
-        distinct_list.append(item)
-  return distinct_list
+    contentBasedModelResults=contentBasedModel(tfidf_scores,userid,user_places_viewed,n_recommendations=5)
+    itemBasedCallobrativeModelResults=userBasedCollaborativeModel(userid, user_ids,users_places_dict, n_recommendations=5)
+    print(contentBasedModelResults)
+    print(itemBasedCallobrativeModelResults)
+    #topRatedPlacesModelResults=topRatedPlacesModel(user_id,ratings)
+    # Concatenate the results
+    concatenated_places = contentBasedModelResults | itemBasedCallobrativeModelResults
+    # Create a dictionary to store frequency count
+    frequency_count = {}
+    # Update frequency count for each place
+    for place in concatenated_places:
+        frequency_count[place] = frequency_count.get(place, 0) + 1
+    # Sort the places based on frequency count
+    sorted_places = sorted(concatenated_places, key=lambda x: frequency_count[x], reverse=True)
+    # Convert the sorted places to a numpy array
+    sorted_places = np.array(sorted_places).tolist()
+    distinct_list = []
+    for item in sorted_places:
+        if item not in distinct_list:
+            distinct_list.append(item)
+    return distinct_list
