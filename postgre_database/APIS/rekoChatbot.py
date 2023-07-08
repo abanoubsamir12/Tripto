@@ -3,15 +3,15 @@ from pyexpat import model
 import tokenize
 import torch
 import torch.nn as nn
-
+from fuzzywuzzy import fuzz
 from transformers import AutoModel, AutoTokenizer
 from transformers import DistilBertTokenizer
 from transformers import TFDistilBertForSequenceClassification
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 max_seq_len = 8
 
-loaded_tokenizer = DistilBertTokenizer.from_pretrained('/content/saved_models')
-loaded_model = TFDistilBertForSequenceClassification
+#loaded_tokenizer = DistilBertTokenizer.from_pretrained('/content/saved_models')
+#loaded_model = TFDistilBertForSequenceClassification
 
 import difflib
 from fastapi import APIRouter, Depends
@@ -36,8 +36,6 @@ def get_db():
     finally:
         db.close()
                
-def get_places_category(cat:str,db:Session = Depends(get_db)):
-    return crud.getPlacesByType(db=db,TypeName=cat)
 
 import re
 
@@ -168,15 +166,39 @@ def handle_intent(user_message:str, intent:str):
 
 @app.get("/gePlacesCategory")
 def get_places_category(cat:str,db:Session = Depends(get_db)):
-    return crud.getPlacesByType(db=db,TypeName=cat) 
+    return crud.getPlacesByType(TypeName=cat,db=db)
+
+
+
+categories = {
+    "unknown": ["unknown"],
+    "religious": ["religious", "religion"],
+    "pharaonic": ["pharaonic", "pharaoh", "pharaohs"],
+    "modern": ["modern"],
+    "ancient": ["ancient"],
+    "natural": ["natural"],
+    "romanian": ["romanian"],
+    "humanly": ["humanly", "human"],
+    "fun": ["fun"],
+    "islamic": ["islamic", "islam"],
+    "coptic": ["coptic"]
+}
 
 @app.get("/extractCategory")
-def extract_category(user_massage:str):
-    types = ["unknown", "religious", "pharaonic", "modern",
-             "ancient", "natural", "romanian", "humanly", "fun",
-             "islamic", "coptic"]
-    user_massage = user_massage.lower()
-    for string in types:
-        if string in user_massage:
-            return string
-    return "invalid"
+def classify_message(message):
+    words = message.lower().split()
+
+    match_scores = {category: 0 for category in categories}
+
+    for word in words:
+        for category, keywords in categories.items():
+            for keyword in keywords:
+                match_score = fuzz.ratio(word, keyword)
+                if match_score > match_scores[category]:
+                    match_scores[category] = match_score
+
+    max_score = max(match_scores.values())
+    classified_category = [category for category, score in match_scores.items() if score == max_score]
+
+    return classified_category
+

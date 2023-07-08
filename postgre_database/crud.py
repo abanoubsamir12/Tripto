@@ -70,6 +70,7 @@ def getTypesByName(db: Session , name: str):
 def getPlacesByType(db: Session , TypeName: str):
     type = getTypesByName(db=db , name= TypeName)
     type_id = type.id
+    print(type_id)
     placesToTypes = db.query(models.PlaceToType).filter(type_id == models.PlaceToType.placeType_id).all()
     list= set()
     for x in placesToTypes:

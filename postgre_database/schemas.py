@@ -102,7 +102,7 @@ class SearchHistory(SearchHistoryBase):
 
 
 class RatingBase(BaseModel):
-    rate: int
+    rate: float
     place_id: int
     user_id: int
 
