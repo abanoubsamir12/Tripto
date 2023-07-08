@@ -22,7 +22,9 @@ import random
 #sys.path.append('E:\college\graduation_project\Tripto-1\models')
 from AImodels.recommendation_system_1 import tfIDF ,recommenderEngine,userBasedCollaborativeModel
 #from ...AImodels import recommendation_system_1
-
+# Converting the labels into encodings
+from sklearn.preprocessing import LabelEncoder
+le = LabelEncoder()
 
 
 app = APIRouter()
@@ -81,57 +83,100 @@ def get_response(message, data, model, tokenizer, le, device, max_seq_len):
     return f"Intent: {intent}\nResponse: {result}"
 
 
-import json
+# import json
 
-# Load intent data from JSON file
-with open("intents.json", "r") as f:
-    data = json.load(f)
+# # Load intent data from JSON file
+# with open("intents.json", "r") as f:
+#     data = json.load(f)
 
-while True:
-  message =  input("User: ")
-  if message=="exit":
-      break
-  response = get_response(message, data, loaded_model, loaded_tokenizer, le, device, max_seq_len)
-  print(response)
+# while True:
+#   message =  input("User: ")
+#   if message=="exit":
+#       break
+#   response = get_response(message, data, loaded_model, loaded_tokenizer, le, device, max_seq_len)
+#   print(response)
 
-def get_places_category(cat:str,db:Session = Depends(get_db)):
-    return crud.getPlacesByType(db=db,TypeName=cat)
+
 
 
 @app.get("/chatReco")
 def handle_intent(user_message:str, intent:str):
-    if intent == "greeting":
+    if intent == 'greeting':
         # Handle greeting intent
         #hyro7 ygeb ay response mn greetings bto3 intents.json
         response = "Hello! How can I assist you today?"
-    elif intent == "nearby":
+
+    elif intent == 'nearby':
         # Handle goodbye intent
+        
         response = "Goodbye! Have a great day!"
-    elif intent == "category":
-        # Handle thank you intent
+
+    elif intent == 'category':
+        print("entered")
+        category=extract_category(user_message)
+        print(category)
+        return get_places_category(category)
+        
+        #extract_category
+
+        #getPlaces
+
         response = "You're welcome! It was my pleasure to help."
+    
     elif intent == "description":
+        print("here")
         # Handle question intent
+
+        #extract placename function
+    
+        #description
+
         response = "I'm sorry, I don't have the answer to that question."
+
     elif intent == "price":
         # Handle question intent
         response = "I'm sorry, I don't have the answer to that question."
+
     elif intent == "location":
         # Handle question intent
         response = "I'm sorry, I don't have the answer to that question."
+
     elif intent == "activity":
         # Handle question intent
+        
+        response = "I'm sorry, I don't have the answer to that question."
+
+    elif intent == "recommendation":
+
         response = "I'm sorry, I don't have the answer to that question."
     elif intent == "goodbye":
         # Handle question intent
         #hyro7 ygeb ay response mn goodbye bto3 intents.json
         response = "I'm sorry, I don't have the answer to that question."        
+
     elif intent == "thanks":
         # Handle question intent
         #hyro7 ygeb ay response mn thanks bto3 intents.json
         response = "I'm sorry, I don't have the answer to that question."
     else:
         # Handle unknown intent
+        print("last")
         response = "I'm sorry, I didn't understand your request."
 
     return response
+
+
+@app.get("/gePlacesCategory")
+def get_places_category(cat:str,db:Session = Depends(get_db)):
+    return crud.getPlacesByType(db=db,TypeName=cat) 
+
+@app.get("/extractCategory")
+def extract_category(user_massage:str):
+    types = ["unknown", "religious", "pharaonic", "modern",
+             "ancient", "natural", "romanian", "humanly", "fun",
+             "islamic", "coptic"]
+    user_massage = user_massage.lower()
+    for string in types:
+        if string in user_massage:
+            return string
+    return "invalid"
