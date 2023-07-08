@@ -1,63 +1,50 @@
-import nltk
-from nltk.stem import WordNetLemmatizer
-from autocorrect import Speller
 import json
-import pickle
-import numpy as np
-from keras.models import Sequential
-from keras.layers import Dense, Activation, Dropout
-from keras.optimizers import SGD
 import random
 
-nltk.download('punkt')
-nltk.download('wordnet')
+import numpy as np
+import pickle
+import tensorflow as tf
+from tensorflow.keras.layers import Dense, Dropout
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.optimizers import Adam
+from nltk.stem import WordNetLemmatizer
+from nltk.tokenize import word_tokenize
 
-#!pip install tensorflow tflearn
-#!pip install autocorrect
+# Load the intents file
+with open('intents.json', 'r') as f:
+    intents = json.load(f)
 
+# Tokenize words and create documents
 lemmatizer = WordNetLemmatizer()
-spell = Speller(lang='en')
-
+documents = []
 words = []
 classes = []
-documents = []
-ignore_words = ['?', '!']
-data_file = open('intents.json').read()
-intents = json.loads(data_file)
-
 for intent in intents['intents']:
     for pattern in intent['patterns']:
         # tokenize each word
-        w = nltk.word_tokenize(pattern)
+        w = word_tokenize(pattern)
         words.extend(w)
         # add documents in the corpus
         documents.append((w, intent['tag']))
-
-        # add to our classes list
         if intent['tag'] not in classes:
             classes.append(intent['tag'])
 
-# lemmatize, lower each word, and remove duplicates
-words = [lemmatizer.lemmatize(w.lower()) for w in words if w not in ignore_words]
-words = sorted(list(set(words)))
+# lemmatize and lower each word and remove duplicates
+words = sorted(list(set([lemmatizer.lemmatize(w.lower()) for w in words if w.isalpha()])))
+
 # sort classes
 classes = sorted(list(set(classes)))
 
-pickle.dump(words, open('words.pkl', 'wb'))
-pickle.dump(classes, open('classes.pkl', 'wb'))
-
-# create our training data
+# create the training data
 training = []
-# create an empty array for our output
 output_empty = [0] * len(classes)
-# training set, bag of words for each sentence
 for doc in documents:
     # initialize our bag of words
     bag = []
     # list of tokenized words for the pattern
     pattern_words = doc[0]
     # lemmatize each word - create base word, in an attempt to represent related words
-    pattern_words = [lemmatizer.lemmatize(word.lower()) for word in pattern_words]
+    pattern_words = [lemmatizer.lemmatize(word.lower()) for word in pattern_words if word.isalpha()]
     # create our bag of words array with 1, if word match found in the current pattern
     for w in words:
         bag.append(1) if w in pattern_words else bag.append(0)
@@ -67,90 +54,71 @@ for doc in documents:
     output_row[classes.index(doc[1])] = 1
 
     training.append([bag, output_row])
+
 # shuffle our features and turn into np.array
 random.shuffle(training)
-training = np.array(training)
+train_x = np.array([i[0] for i in training])
+train_y = np.array([i[1] for i in training])
 
-# create train and test lists. X - patterns, Y - intents
-train_x = list(training[:, 0])
-train_y = list(training[:, 1])
+# Define the model
+model = Sequential([
+    Dense(128, input_shape=(len(words),), activation='relu'),
+    Dropout(0.5),
+    Dense(64, activation='relu'),
+    Dropout(0.5),
+    Dense(len(classes), activation='softmax')
+])
 
-# Create model - 3 layers. First layer 128 neurons, second layer 64 neurons, and 3rd output layer contains
-# the number of neurons equal to the number of intents to predict output intent with softmax
-model = Sequential()
-model.add(Dense(128, input_shape=(len(train_x[0]),), activation='relu'))
-model.add(Dropout(0.5))
-model.add(Dense(64, activation='relu'))
-model.add(Dropout(0.5))
-model.add(Dense(len(train_y[0]), activation='softmax'))
+# Compile the model
+model.compile(optimizer=Adam(learning_rate=0.001), loss='categorical_crossentropy', metrics=['accuracy'])
 
-# Compile model. Stochastic gradient descent with Nesterov accelerated gradient gives good results for this model
-sgd = SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
-model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=['accuracy'])
+# Fit the model
+model.fit(train_x, train_y, epochs=500, batch_size=8, verbose=1)
 
-# fitting and saving the model
-hist = model.fit(np.array(train_x), np.array(train_y), epochs=200, batch_size=5, verbose=1)
+# Save the model
+model.save('chatbot_model.h5')
+# Save the classes and words to pickle files
+with open('classes.pkl', 'wb') as f:
+    pickle.dump(classes, f)
 
-model.save('chatbot_model.h5', hist)
+with open('words.pkl', 'wb') as f:
+    pickle.dump(words, f)
 
 def clean_up_sentence(sentence):
-    # tokenize the pattern - split words into an array
-    sentence_words = nltk.word_tokenize(sentence)
-    # lemmatize each word - create a base word, in an attempt to represent related words
-    sentence_words = [lemmatizer.lemmatize(word.lower()) for word in sentence_words]
+    sentence_words = word_tokenize(sentence)
+    sentence_words = [lemmatizer.lemmatize(word.lower()) for word in sentence_words if word.isalpha()]
     return sentence_words
 
-
-# return bag of words array: 0 or 1 for each word in the bag that exists in the sentence
-def bow(sentence, words, show_details=True):
-    # tokenize the pattern
-    sentence_words = clean_up_sentence(sentence)
-    # bag of words - matrix of N words, vocabulary matrix
+def bow(sentence, words):
     bag = [0] * len(words)
-    for s in sentence_words:
+    for s in clean_up_sentence(sentence):
         for i, w in enumerate(words):
             if w == s:
-                # assign 1 if the current word is in the vocabulary position
                 bag[i] = 1
-                if show_details:
-                    print("found in bag: %s" % w)
     return np.array(bag)
 
-
 def predict_class(sentence, model):
-    # filter out predictions below a threshold
-    p = bow(sentence, words, show_details=False)
+    p = bow(sentence, words)
     res = model.predict(np.array([p]))[0]
-    ERROR_THRESHOLD = 0.25
-    results = [[i, r] for i, r in enumerate(res) if r > ERROR_THRESHOLD]
-    # sort by the strength of probability
+    results = [[i, r] for i, r in enumerate(res) if r > 0.25]
     results.sort(key=lambda x: x[1], reverse=True)
     return_list = []
     for r in results:
         return_list.append({"intent": classes[r[0]], "probability": str(r[1])})
+    if not return_list:
+        return_list.append({"intent": "sorry,i can not understand", "probability": "1"})
     return return_list
 
-
-def getResponse(ints, intents_json):
-    if len(ints) == 0:
-        return "I'm sorry, but I'm not sure how to respond to that."
-
+def get_response(ints):
     tag = ints[0]['intent']
-    list_of_intents = intents_json['intents']
+    list_of_intents = intents['intents']
     for i in list_of_intents:
         if i['tag'] == tag:
             result = random.choice(i['responses'])
             break
     return result
 
-
 def chatbot_response(text):
     ints = predict_class(text, model)
-    res = getResponse(ints, intents)
+    res = get_response(ints)
     return res
-
-
-#while True:
-#    user_input = input("Enter text: ")
-#    response = chatbot_response(user_input)
-#    print(response)

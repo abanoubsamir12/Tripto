@@ -10,7 +10,8 @@ from nltk.stem import WordNetLemmatizer
 lemmatizer = WordNetLemmatizer()
 import json
 import pickle
-
+from nltk.tokenize import word_tokenize
+from textblob import TextBlob
 import numpy as np
 from keras.models import Sequential
 from keras.layers import Dense, Activation, Dropout
@@ -54,71 +55,48 @@ intents = json.loads(data_file)
 
 
 def clean_up_sentence(sentence):
-    # tokenize the pattern - split words into array
-    sentence_words = nltk.word_tokenize(sentence)
-    # stem each word - create short form for word
-    sentence_words = [lemmatizer.lemmatize(word.lower()) for word in sentence_words]
+    # Use TextBlob to correct any spelling mistakes in the sentence
+    sentence = str(TextBlob(sentence).correct())
+    sentence_words = word_tokenize(sentence)
+    sentence_words = [lemmatizer.lemmatize(word.lower()) for word in sentence_words if word.isalpha()]
     return sentence_words
-# return bag of words array: 0 or 1 for each word in the bag that exists in the sentence
 
-def bow(sentence, words, show_details=True):
-    # tokenize the pattern
-    sentence_words = clean_up_sentence(sentence)
-    # bag of words - matrix of N words, vocabulary matrix
-    bag = [0]*len(words)
-    for s in sentence_words:
-        for i,w in enumerate(words):
+def bow(sentence, words):
+    bag = [0] * len(words)
+    for s in clean_up_sentence(sentence):
+        for i, w in enumerate(words):
             if w == s:
-                # assign 1 if current word is in the vocabulary position
                 bag[i] = 1
-                if show_details:
-                    print ("found in bag: %s" % w)
-    return(np.array(bag))
+    return np.array(bag)
 
 def predict_class(sentence, model):
-    # filter out predictions below a threshold
-    p = bow(sentence, words,show_details=False)
+    p = bow(sentence, words)
     res = model.predict(np.array([p]))[0]
-    ERROR_THRESHOLD = 0.25
-    results = [[i,r] for i,r in enumerate(res) if r>ERROR_THRESHOLD]
-    # sort by strength of probability
+    results = [[i, r] for i, r in enumerate(res) if r > 0.25]
     results.sort(key=lambda x: x[1], reverse=True)
     return_list = []
     for r in results:
         return_list.append({"intent": classes[r[0]], "probability": str(r[1])})
+    if not return_list:
+        return_list.append({"intent": "sorry,i can not understand", "probability": "1"})
     return return_list
 
-def getResponse(ints, intents_json):
+def get_response(ints):
     tag = ints[0]['intent']
-    list_of_intents = intents_json['intents']
+    list_of_intents = intents['intents']
     for i in list_of_intents:
-        if(i['tag']== tag):
+        if i['tag'] == tag:
             result = random.choice(i['responses'])
             break
     return result
 
-import re
-from collections import Counter
-
-def preprocess_sentence(sentence):
-    # Remove special characters and convert to lowercase
-    sentence = re.sub(r"[^\w\s]", "", sentence.lower())
-    return sentence
-
-def classify_word(sentence, places_names):
-    sentence = preprocess_sentence(sentence)
-    word_counts = Counter(sentence.split())
-
-    # Find the most common place name in the sentence
-    most_common_place = max(places_names, key=lambda place: word_counts.get(place.lower(), 0))
-
-    return most_common_place
+def chatbot_response(text):
+    ints = predict_class(text, model)
+    res = get_response(ints)
+    return res
 
 
 @app.get('/chatting')
 def get_chatbot_reponse(text:str,db:Session = Depends(get_db)):
-    places_names = crud.getPlacesNames(db=db)
-    classified = classify_word(sentence=text,places_names=places_names)
-    print (classified)
-    #response = chatbot_response(text=text , intents=intents , model=model)
-    return classified
+    response = chatbot_response(text=text)
+    return response

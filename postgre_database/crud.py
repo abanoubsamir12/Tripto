@@ -110,7 +110,7 @@ def CreateActivity(db: Session , activity: schemas.Activity):
     db.add(db_activity)
     db.commit()
     db.refresh(db_activity)
-    return  db_activity.id
+    return  db_activity
 
 
 def getPlacesNames(db:Session):

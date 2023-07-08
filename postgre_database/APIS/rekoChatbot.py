@@ -1,18 +1,10 @@
-
-from pyexpat import model
-import tokenize
-import torch
+from pyexpat import model as pyexpat_model
+import tensorflow as tf
 import torch.nn as nn
 from fuzzywuzzy import fuzz
 from transformers import AutoModel, AutoTokenizer
 from transformers import DistilBertTokenizer
 from transformers import TFDistilBertForSequenceClassification
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-max_seq_len = 8
-from .recommendationEngine_services import get_recommended
-#loaded_tokenizer = DistilBertTokenizer.from_pretrained('/content/saved_models')
-#loaded_model = TFDistilBertForSequenceClassification
-
 import difflib
 from fastapi import APIRouter, Depends
 from .. import crud , schemas,models
@@ -24,7 +16,28 @@ from AImodels.recommendation_system_1 import tfIDF ,recommenderEngine,userBasedC
 #from ...AImodels import recommendation_system_1
 # Converting the labels into encodings
 from sklearn.preprocessing import LabelEncoder
-le = LabelEncoder()
+from .recommendationEngine_services import get_recommended
+import keras
+
+from transformers import DistilBertTokenizer, TFDistilBertForSequenceClassification
+
+#loaded_model = DistilBertTokenizer.from_pretrained('/postgre_database/APIS/ChatbotWeights')
+#loaded_tokenizer = TFDistilBertForSequenceClassification.from_pretrained('ChatbotWeights/chatbot_model.h5', use_auth_token=True)
+
+
+import json
+#loaded_model = keras.models.load_model('postgre_database\APIS\chatbot_model.h5')
+
+
+# Specify the path to your JSON file
+file_path = "postgre_database\APIS\ChatbotWeights\tokenizer_config.json"
+
+# Open the JSON file
+# with open(file_path, "r") as file:
+#     # Load the JSON data
+#     loaded_tokenizer = json.load(file)
+
+
 
 
 app = APIRouter()
@@ -36,63 +49,19 @@ def get_db():
     finally:
         db.close()               
 
-import re
 
-def preprocess_text(text):
-    text = re.sub(r'[^a-zA-Z ]+', '', text)
-    text = text.lower()
-    return text
+@app.get('/getResponseReeko')
+def getResponse(test_text:str):
+    predict_input = loaded_tokenizer.encode(test_text,
+                                 truncation=True,
+                                 padding=True,
+                                 return_tensors="tf")
 
-def get_prediction(text, model, tokenizer, device, max_seq_len):
-    text = preprocess_text(text)
-    test_text = [text]
-    model.eval()
+    output = loaded_model(predict_input)[0]
 
-    tokens_test_data = tokenizer(
-        test_text,
-        max_length=max_seq_len,
-        pad_to_max_length=True,
-        truncation=True,
-        return_token_type_ids=False
-    )
-
-def get_response(message, data, model, tokenizer, le, device, max_seq_len):
-    intent = get_prediction(message, model, tokenizer, device, max_seq_len)
-    result = ""
-
-    # Check if the message matches a specific pattern in intents
-    for i in data['intents']:
-        for pattern in i["patterns"]:
-            if difflib.SequenceMatcher(None, message, pattern).ratio() > 0.8:
-                result = random.choice(i["responses"])
-                break
-        if result:
-            break
-
-    if not result:
-        for i in data['intents']:
-            if i["tag"] == intent:
-                result = random.choice(i["responses"])
-                break
-
-    if not result:
-        result = "I'm sorry, I didn't understand your question."
-    return f"Intent: {intent}\nResponse: {result}"
-
-
-# import json
-
-# # Load intent data from JSON file
-# with open("intents.json", "r") as f:
-#     data = json.load(f)
-
-# while True:
-#   message =  input("User: ")
-#   if message=="exit":
-#       break
-#   response = get_response(message, data, loaded_model, loaded_tokenizer, le, device, max_seq_len)
-#   print(response)
-
+    prediction_value = tf.argmax(output, axis=1).numpy()[0]
+    print("omaaaaaaaaaaaaaaaaaaaaaar" + prediction_value)
+    return prediction_value
 
 
 def capitalize_first_char(string):
@@ -118,10 +87,6 @@ def classify_sentence(sentence, word_list):
     return classified_words
 
 
-
-
-
-
 categories = {
     "unknown": ["unknown"],
     "religious": ["religious", "religion"],
@@ -135,6 +100,7 @@ categories = {
     "islamic": ["islamic", "islam"],
     "coptic": ["coptic"]
 }
+
 
 @app.get("/extractCategory")
 def classify_message(message:str):
@@ -163,8 +129,6 @@ async def handle_intent(user_message:str,user_id: int ,nationality:str,intent:st
     place = crud.getPlaceByName(placeName=place_name ,db=db)
         
     if intent == 'greeting':
-        # Handle greeting intent
-        #hyro7 ygeb ay response mn greetings bto3 intents.json
         response = "Hello! How can I assist you today?"
 
     elif intent == 'category':        
@@ -214,8 +178,7 @@ async def handle_intent(user_message:str,user_id: int ,nationality:str,intent:st
             response += ", "
         
     elif intent == "goodbye":
-        # Handle question intent
-        #hyro7 ygeb ay response mn goodbye bto3 intents.json
+
         response = "I'm sorry, I don't have the answer to that question."        
 
     elif intent == "thanks":

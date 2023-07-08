@@ -79,11 +79,6 @@ def nUser_recommendation_engine(user_id:int, nationality:str ,db: Session):
     
     return my_list[:20]        
     
-    
-    
-    
-    print(nationality_interests,"nat")
-    print(user_interests,"use")    
 
 
 @app.get('/recommendedP')
