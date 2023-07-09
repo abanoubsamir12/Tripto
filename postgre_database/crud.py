@@ -283,15 +283,17 @@ def addFavPlace(placeToUser: schemas.PlaceToUser, db:Session):
     check_duplicate = db.query(models.PlacesToUsers).filter_by(placeid=placeToUser.placeid, userid = placeToUser.userid).first()
     if check_duplicate:
         return None
-    db_placeToUser = models.PlacesToUsers(
-        placeid = placeToUser.placeid,
-        userid = placeToUser.userid        
-    )
-    db.add(db_placeToUser)
-    db.commit()
-    db.refresh(db_placeToUser)
-    return db_placeToUser
-
+    try:
+        db_placeToUser = models.PlacesToUsers(
+            placeid = placeToUser.placeid,
+            userid = placeToUser.userid        
+        )
+        db.add(db_placeToUser)
+        db.commit()
+        db.refresh(db_placeToUser)
+        return db_placeToUser
+    except:
+        return "not valid user_id or place_id"
 def getFavPlacesID(userid: int, db: Session) -> List[int]:
     places_to_user = db.query(models.PlacesToUsers).filter(models.PlacesToUsers.userid == userid).all()
     places = [place.placeid for place in places_to_user]

@@ -45,7 +45,10 @@ async def get_places(db: Session = Depends(get_db)):
 
 @app.get('/places/{type}')
 async def get_places_by_type( type: str , db: Session = Depends(get_db) ):
-    return  crud.getPlacesByType(db=db , TypeName=type)
+    places = crud.getPlacesByType(db=db , TypeName=type)
+    if not places:
+        return [] 
+    return  places
 
 @app.get('/place')
 async def get_place_by_id(id: int, db: Session = Depends(get_db)):

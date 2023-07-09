@@ -56,10 +56,10 @@ def nUser_recommendation_engine(user_id:int, nationality:str ,db: Session):
     
     nationality_interests =  crud.get_nationality_interests(name=nationality , db= db)
     if not nationality_interests:
-        nationality_interests = None
+        nationality_interests = []
     user_interests = crud.get_user_interests(user_id=user_id , db=db)
     if not user_interests :
-        user_interests = None
+        user_interests = []
     if (not nationality_interests) and (not user_interests):
         my_places = crud.getTopRatedPlaces(db=db)
         random.shuffle(my_places)
@@ -80,9 +80,7 @@ def nUser_recommendation_engine(user_id:int, nationality:str ,db: Session):
     return my_list[:20]        
     
 
-
-@app.get('/recommendedP')
-async def get_recommended(user_id: int ,nationality:str ,db: Session = Depends(get_db)):
+def get_recommended(user_id: int ,nationality:str ,db: Session = Depends(get_db)):
     user = crud.getUserByID(db=db , user_id= user_id)
     if not user:
         return {"message" : "not found user"}
@@ -96,4 +94,9 @@ async def get_recommended(user_id: int ,nationality:str ,db: Session = Depends(g
         return places
     return set(nUser_recommendation_engine(user_id=user_id , nationality=nationality,db=db))
         
+@app.get('/recommendedP')
+async def get_recommendedP(user_id: int ,nationality:str ,db: Session = Depends(get_db)):
+    places = await  get_recommended(user_id,nationality,db=db)
+    places = list (places)
+    return places
 
