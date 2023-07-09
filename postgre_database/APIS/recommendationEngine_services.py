@@ -96,7 +96,7 @@ def get_recommended(user_id: int ,nationality:str ,db: Session = Depends(get_db)
         
 @app.get('/recommendedP')
 async def get_recommendedP(user_id: int ,nationality:str ,db: Session = Depends(get_db)):
-    places = await  get_recommended(user_id,nationality,db=db)
+    places = get_recommended(user_id,nationality,db=db)
     places = list (places)
     return places
 
